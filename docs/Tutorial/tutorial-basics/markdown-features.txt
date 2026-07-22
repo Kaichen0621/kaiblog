@@ -1,0 +1,112 @@
+---
+sidebar_position: 4
+---
+
+# Markdown 特性
+
+Docusaurus 支援 **[Markdown](https://daringfireball.net/projects/markdown/syntax)** 以及一些 **額外特性**。
+
+## 前置資料 (Front Matter)
+
+Markdown 文件頂端擁有一段稱為 [Front Matter](https://jekyllrb.com/docs/front-matter/) 的元數據：
+
+```text title="my-doc.md"
+// highlight-start
+---
+id: my-doc-id
+title: 我的文件標題
+description: 我的文件描述
+slug: /my-custom-url
+---
+// highlight-end
+
+## Markdown 標題
+
+帶有 [連結](./hello.md) 的 Markdown 文字
+
+連結
+支援一般的 Markdown 連結，可使用 URL 路徑或相對檔案路徑。
+讓我們看看如何 [建立頁面](/create-a-page)。
+
+讓我們看看如何 [建立頁面](./create-a-page.md)。
+
+結果： 讓我們看看如何 建立頁面。
+圖片
+支援一般的 Markdown 圖片。
+你可以使用絕對路徑來引用 static 目錄中的圖片 (static/img/docusaurus.png)：
+![Docusaurus 標誌](/img/docusaurus.png)
+
+你也可以引用相對於當前檔案的圖片。這在將圖片與使用它們的 Markdown 檔案放在一起時特別有用：
+![Docusaurus 標誌](./img/docusaurus.png)
+
+程式碼區塊
+支援帶有語法突顯的 Markdown 程式碼區塊。
+```jsx title="src/components/HelloDocusaurus.js"
+function HelloDocusaurus() {
+  return <h1>哈囉，Docusaurus！</h1>;
+}
+```
+
+function HelloDocusaurus() {
+  return <h1>哈囉，Docusaurus！</h1>;
+}
+
+提示框 (Admonitions)
+Docusaurus 有一種特殊的語法來建立提示與警告框：
+:::tip 我的小撇步
+
+使用這個超棒的特性選項
+
+:::
+
+:::danger 注意
+
+這個動作具有危險性
+
+:::
+
+:::tip 我的小撇步
+使用這個超棒的特性選項
+:::
+:::danger 注意
+這個動作具有危險性
+:::
+MDX 與 React 元件
+MDX 可以讓你的文件更具 互動性，並允許在 Markdown 中使用任何 React 元件：
+export const Highlight = ({children, color}) => (
+  <span
+    style={{
+      backgroundColor: color,
+      borderRadius: '20px',
+      color: '#fff',
+      padding: '10px',
+      cursor: 'pointer',
+    }}
+    onClick={() => {
+      alert(`你點擊了顏色 ${color}，標籤為 ${children}`)
+    }}>
+    {children}
+  </span>
+);
+
+這是 <Highlight color="#25c2a0">Docusaurus 綠</Highlight>！
+
+這是 <Highlight color="#1877F2">Facebook 藍</Highlight>！
+
+export const Highlight = ({children, color}) => (
+<span
+style={{
+backgroundColor: color,
+borderRadius: '20px',
+color: '#fff',
+padding: '10px',
+cursor: 'pointer',
+}}
+onClick={() => {
+alert(你點擊了顏色 ${color}，標籤為 ${children});
+}}>
+{children}
+</span>
+);
+這是 <Highlight color="#25c2a0">Docusaurus 綠</Highlight>！
+這是 <Highlight color="#1877F2">Facebook 藍</Highlight>！

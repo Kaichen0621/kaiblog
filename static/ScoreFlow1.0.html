@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ScoreFlow Pro — 演奏家沉浸譜架</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';</script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
+
+    <style>
+        :root {
+            --apple-bg: #1e1e1e; 
+            --apple-bar: rgba(30, 30, 30, 0.75);
+            --apple-accent: #0071e3;
+            --apple-success: #34c759;
+            --apple-gray: rgba(255, 255, 255, 0.1);
+            --apple-card: rgba(40, 40, 40, 0.9);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+            margin: 0; padding: 0;
+            background-color: var(--apple-bg); color: #ffffff;
+            display: flex; flex-direction: column;
+            height: 100vh; overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        header {
+            width: 100%; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            background: var(--apple-bar); border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 12px 30px; display: flex; justify-content: space-between; align-items: center;
+            box-sizing: border-box; z-index: 100;
+            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        body.fullscreen-mode header { transform: translateY(-100%); height: 0; padding: 0; border: none; overflow: hidden; }
+        .logo { font-weight: 600; font-size: 18px; letter-spacing: -0.5px; }
+        .controls { display: flex; align-items: center; gap: 14px; }
+
+        .btn {
+            background-color: var(--apple-accent); color: white;
+            padding: 8px 18px; border-radius: 980px;
+            font-size: 13px; font-weight: 500; border: none;
+            cursor: pointer; transition: all 0.2s ease;
+        }
+        .btn:hover { opacity: 0.9; transform: scale(1.02); }
+        .btn-secondary { background-color: var(--apple-gray); color: #fff; }
+        .btn-toggle-active { background-color: var(--apple-success); }
+
+        .midi-status { font-size: 13px; color: #aaa; display: flex; align-items: center; gap: 6px; }
+        .status-dot { width: 8px; height: 8px; background-color: #ff3b30; border-radius: 50%; }
+        .status-dot.active { background-color: var(--apple-success); }
+
+        #score-container {
+            width: 100%; flex: 1;
+            overflow-y: auto; scroll-behavior: smooth;
+            display: flex; flex-direction: column; align-items: center;
+            padding: 20px 0; box-sizing: border-box;
+        }
+        #score-container::-webkit-scrollbar { display: none; }
+
+        .pdf-page-canvas {
+            background: white; box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+            margin-bottom: 24px; max-width: 95%; transition: filter 0.3s ease;
+        }
+        .pdf-page-canvas.dark-score { filter: invert(0.9) contrast(1.2) brightness(1.1); }
+        #placeholder { height: 60vh; display: flex; flex-direction: column; justify-content: center; color: #aaa; text-align: center; }
+
+        /* 🌟 極簡邊角 HUD：預設完全透明，觸發時才優雅淡入 */
+        .hud-panel {
+            position: fixed; bottom: 16px; right: 24px;
+            background: rgba(0, 0, 0, 0.7); color: rgba(255, 255, 255, 0.85); 
+            padding: 6px 14px; border-radius: 8px;
+            font-size: 12px; font-family: -apple-system, sans-serif;
+            pointer-events: none; z-index: 200;
+            border: 1px solid rgba(255,255,255,0.08);
+            opacity: 0; transition: opacity 0.2s ease;
+        }
+        .hud-panel.show { opacity: 1; }
+
+        #camera-preview-container {
+            position: fixed; top: 75px; right: 24px;
+            width: 100px; height: 75px;
+            border-radius: 10px; overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.15);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 150; background: #000;
+            transform: scaleX(-1); display: none;
+            opacity: 0.3; transition: opacity 0.3s;
+        }
+        #camera-preview-container:hover { opacity: 0.9; }
+        body.fullscreen-mode #camera-preview-container { top: 24px; }
+        #webcam { width: 100%; height: 100%; object-fit: cover; }
+
+        /* 偏好設定彈窗 */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            display: flex; justify-content: center; align-items: center; z-index: 300;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+        }
+        .modal-overlay.open { opacity: 1; pointer-events: auto; }
+        .modal-card {
+            background: var(--apple-card); border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 24px; padding: 24px; width: 420px; box-shadow: 0 20px 50px rgba(0,0,0,0.6); color: white;
+        }
+        .modal-title { font-size: 18px; font-weight: 600; margin-bottom: 16px; text-align: center; }
+        .setting-item { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; background: rgba(255,255,255,0.05); padding: 12px; border-radius: 14px; }
+        .setting-label { font-size: 13px; color: #ddd; font-weight: 500; display: flex; justify-content: space-between; align-items: center;}
+        .setting-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; align-items: center; }
+        .bind-tag { background: rgba(0, 113, 227, 0.25); border: 1px solid var(--apple-accent); color: #74b9ff; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-family: monospace; }
+        .btn-action-small { background: rgba(255,255,255,0.1); border: none; color: #fff; padding: 5px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; }
+        .btn-action-small.recording { background: #ff9500; animation: blink 1s infinite; }
+        .btn-clear { background: rgba(255, 61, 48, 0.2); color: #ff4d4d; }
+        
+        select { background: #333; color: white; border: 1px solid rgba(255,255,255,0.2); padding: 6px 12px; border-radius: 8px; font-size: 12px; }
+        .slider-row { display: flex; align-items: center; gap: 12px; width: 100%; }
+        .slider-row input[type="range"] { flex: 1; accent-color: var(--apple-accent); }
+
+        #exit-fs-btn { position: fixed; top: 20px; right: 20px; display: none; z-index: 200; opacity: 0.4; }
+        #exit-fs-btn:hover { opacity: 1; }
+        body.fullscreen-mode #exit-fs-btn { display: block; }
+    </style>
+</head>
+<body>
+
+    <header id="top-bar">
+        <div class="logo">ScoreFlow Pro</div>
+        <div class="controls">
+            <label class="btn">
+                打開 PDF 樂譜
+                <input type="file" id="file-input" accept="application/pdf" style="display: none;">
+            </label>
+            
+            <button id="btn-control-mode" class="btn btn-toggle-active" onclick="toggleControlMode()">模式：實體鍵盤 / MIDI</button>
+            
+            <button id="btn-dark-mode" class="btn btn-secondary" onclick="toggleDarkScore()">深色譜面：關</button>
+            <button class="btn btn-secondary" onclick="openSettings()">偏好設定</button>
+            <button class="btn" onclick="toggleFullscreen()">全螢幕</button>
+            
+            <div class="midi-status">
+                <span id="status-dot" class="status-dot"></span>
+                <span id="status-text">未連接實體裝置</span>
+            </div>
+        </div>
+    </header>
+
+    <button id="exit-fs-btn" class="btn btn-secondary" onclick="toggleFullscreen()">退出全螢幕</button>
+
+    <div id="camera-preview-container">
+        <video id="webcam" autoplay playsinline></video>
+    </div>
+
+    <div id="score-container">
+        <div id="placeholder">
+            <h3>ScoreFlow Pro 演奏家沉浸版本</h3>
+            <p>請載入 PDF 樂譜。當前已鎖定單一控制流，保障舞台演出零干擾。</p>
+        </div>
+    </div>
+
+    <div class="hud-panel" id="hud"></div>
+
+    <div class="modal-overlay" id="settings-modal">
+        <div class="modal-card">
+            <div class="modal-title">智慧控制細微設定</div>
+            
+            <div class="setting-item">
+                <div class="setting-label">🤖 AI 視覺細分模式</div>
+                <div class="setting-row" style="justify-content: space-between; width:100%;">
+                    <select id="vision-mode-select" style="width: 100%;" onchange="updateVisionMode(this.value)">
+                        <option value="wink">😉 左右單眼眨眼 (強力推薦)</option>
+                        <option value="tilt">📐 微幅左右歪頭</option>
+                        <option value="gaze">👀 眼神左右注視</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-label">📏 每次翻動幅度: <span id="step-val" style="color:var(--apple-accent)">300px</span></div>
+                <div class="slider-row">
+                    <input type="range" min="100" max="600" step="20" id="step-slider" value="300" oninput="updateStep(this.value)">
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-label">
+                    <span>⬇️ 往下移一行 (MIDI 錄製)</span>
+                    <button class="btn-clear btn-action-small" onclick="clearBindings('down')">清空</button>
+                </div>
+                <div class="setting-row" id="bind-list-down"></div>
+                <div style="margin-top: 6px;">
+                    <button id="btn-rec-down" class="btn-action-small" style="background: var(--apple-accent);" onclick="startRecord('down')">+ 觸摸錄製</button>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn" style="width: 100%;" onclick="closeSettings()">完成並關閉</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const container = document.getElementById('score-container');
+        const statusDot = document.getElementById('status-dot');
+        const statusText = document.getElementById('status-text');
+        const hud = document.getElementById('hud');
+        const modal = document.getElementById('settings-modal');
+        const videoElement = document.getElementById('webcam');
+        const cameraContainer = document.getElementById('camera-preview-container');
+
+        // 核心狀態
+        let SCROLL_STEP = 300; 
+        let isDarkModeScore = false;
+        let lastVisionTriggerTime = 0; 
+        const VISION_COOLDOWN = 1000; 
+
+        // 🌟 核心機制：排他性模式 'physical' (鍵盤/MIDI) 或 'vision' (AI 眨眼)
+        let CONTROL_MODE = 'physical'; 
+        let SELECTED_VISION_MODE = 'wink'; 
+
+        let faceMesh = null;
+        let camera = null;
+        let hudTimeout = null;
+
+        // MIDI 控制庫預設
+        let bindings = {
+            down: [
+                { type: 224, id: 'pitch_up', desc: 'Pitch Bend ▲' },
+                { type: 176, id: 64, desc: '延音踏板 (CC64)' }
+            ],
+            up: [
+                { type: 224, id: 'pitch_down', desc: 'Pitch Bend ▼' }
+            ]
+        };
+
+        // 🌟 雙模式二選一切換邏輯
+        function toggleControlMode() {
+            const btn = document.getElementById('btn-control-mode');
+            if (CONTROL_MODE === 'physical') {
+                // 切換至 AI 視覺模式
+                CONTROL_MODE = 'vision';
+                btn.textContent = '模式：AI 眨眼控制';
+                btn.style.backgroundColor = 'var(--apple-success)';
+                cameraContainer.style.display = 'block';
+                triggerVisualFeedback("已開啟 AI 視覺追蹤 (鍵盤已暫停)");
+                initFaceMeshEngine();
+            } else {
+                // 切換至 實體控制模式
+                CONTROL_MODE = 'physical';
+                btn.textContent = '模式：實體鍵盤 / MIDI';
+                btn.style.backgroundColor = 'var(--apple-accent)';
+                cameraContainer.style.display = 'none';
+                triggerVisualFeedback("已切換至 鍵盤 / MIDI 模式");
+                if (camera) camera.stop();
+            }
+        }
+
+        // 🌟 原生鍵盤事件監聽 (僅在實體模式下生效)
+        document.addEventListener('keydown', function(e) {
+            if (CONTROL_MODE !== 'physical') return; // 二選一防干擾機制
+            
+            if (e.key === 'ArrowDown' || e.key === ' ') {
+                e.preventDefault();
+                scrollLines('down');
+                triggerVisualFeedback("⌨️ 鍵盤：下一行");
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                scrollLines('up');
+                triggerVisualFeedback("⌨️ 鍵盤：上一行");
+            }
+        });
+
+        // 🌟 邊角極簡動態回饋（無跳動數字，讀完自動隱藏）
+        function triggerVisualFeedback(msg) {
+            clearTimeout(hudTimeout);
+            hud.textContent = msg;
+            hud.classList.add('show');
+            hudTimeout = setTimeout(() => { hud.classList.remove('show'); }, 1200);
+        }
+
+        function updateBindUI() {
+            const renderTags = (target, elementId) => {
+                const box = document.getElementById(elementId); box.innerHTML = '';
+                if (bindings[target].length === 0) { box.innerHTML = '<span style="font-size:12px; color:#666;">無對應鍵</span>'; return; }
+                bindings[target].forEach(b => {
+                    const tag = document.createElement('span'); tag.className = 'bind-tag'; tag.textContent = b.desc; box.appendChild(tag);
+                });
+            };
+            renderTags('down', 'bind-list-down');
+        }
+        updateBindUI();
+
+        function openSettings() { modal.classList.add('open'); }
+        function closeSettings() { modal.classList.remove('open'); }
+        function updateStep(val) { SCROLL_STEP = parseInt(val); document.getElementById('step-val').textContent = val + 'px'; }
+        function updateVisionMode(val) { SELECTED_VISION_MODE = val; }
+        function startRecord(target) { recordingTarget = target; resetRecButtons(); const btn = document.getElementById(target === 'down' ? 'btn-rec-down' : 'btn-rec-up'); btn.classList.add('recording'); btn.textContent = '請觸摸裝置...'; }
+        function resetRecButtons() { document.getElementById('btn-rec-down').classList.remove('recording'); document.getElementById('btn-rec-down').textContent = '+ 觸摸錄製'; }
+
+        function toggleDarkScore() {
+            isDarkModeScore = !isDarkModeScore;
+            document.querySelectorAll('.pdf-page-canvas').forEach(c => c.classList.toggle('dark-score', isDarkModeScore));
+            const btn = document.getElementById('btn-dark-mode');
+            btn.textContent = isDarkModeScore ? '深色譜面：開' : '深色譜面：關';
+            btn.classList.toggle('btn-toggle-active', isDarkModeScore);
+        }
+
+        function initFaceMeshEngine() {
+            if (faceMesh) { camera.start(); return; }
+
+            faceMesh = new FaceMesh({locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`});
+            faceMesh.setOptions({ maxNumFaces: 1, refineLandmarks: true, minDetectionConfidence: 0.6, minTrackingConfidence: 0.6 });
+            faceMesh.onResults(onVisionResults);
+
+            camera = new Camera(videoElement, {
+                onFrame: async () => { if (CONTROL_MODE === 'vision') await faceMesh.send({image: videoElement}); },
+                width: 320, height: 240
+            });
+            camera.start().catch(err => {
+                alert("鏡頭啟動失敗：" + err);
+                toggleControlMode();
+            });
+        }
+
+        // AI 視覺處理核心 (完全拔除即時渲染數字到 DOM)
+        function onVisionResults(results) {
+            if (CONTROL_MODE !== 'vision' || !results.multiFaceLandmarks || results.multiFaceLandmarks.length === 0) return;
+
+            const landmarks = results.multiFaceLandmarks[0];
+            const now = performance.now();
+
+            // 眨眼特徵值解算
+            const lDist = Math.hypot(landmarks[159].x - landmarks[145].x, landmarks[159].y - landmarks[145].y);
+            const lWidth = Math.hypot(landmarks[133].x - landmarks[33].x, landmarks[133].y - landmarks[33].y);
+            const leftOpenRatio = lDist / lWidth;
+
+            const rDist = Math.hypot(landmarks[386].x - landmarks[374].x, landmarks[386].y - landmarks[374].y);
+            const rWidth = Math.hypot(landmarks[263].x - landmarks[362].x, landmarks[263].y - landmarks[362].y);
+            const rightOpenRatio = rDist / rWidth;
+
+            // 歪頭與眼神輔助
+            const tiltAngle = Math.atan2(landmarks[263].y - landmarks[33].y, landmarks[263].x - landmarks[33].x) * (180 / Math.PI);
+            const leftIris = landmarks[468];
+            const irisPos = (leftIris.x - landmarks[33].x) / (landmarks[133].x - landmarks[33].x);
+
+            const winkClosedThreshold = 0.13; 
+            const winkOpenThreshold = 0.23;
+
+            // 觸發判定
+            if (now - lastVisionTriggerTime > VISION_COOLDOWN) {
+                if (SELECTED_VISION_MODE === 'wink') {
+                    if (rightOpenRatio < winkClosedThreshold && leftOpenRatio > winkOpenThreshold) {
+                        scrollLines('down');
+                        lastVisionTriggerTime = now;
+                        triggerVisualFeedback("😉 眨右眼：下一行");
+                    } else if (leftOpenRatio < winkClosedThreshold && rightOpenRatio > winkOpenThreshold) {
+                        scrollLines('up');
+                        lastVisionTriggerTime = now;
+                        triggerVisualFeedback("😉 眨左眼：上一行");
+                    }
+                } else if (SELECTED_VISION_MODE === 'tilt') {
+                    if (tiltAngle > 5.0) {
+                        scrollLines('down'); lastVisionTriggerTime = now;
+                        triggerVisualFeedback("📐 右歪頭：下一行");
+                    } else if (tiltAngle < -5.0) {
+                        scrollLines('up'); lastVisionTriggerTime = now;
+                        triggerVisualFeedback("📐 左歪頭：上一行");
+                    }
+                } else if (SELECTED_VISION_MODE === 'gaze') {
+                    if (irisPos > 0.58) {
+                        scrollLines('down'); lastVisionTriggerTime = now;
+                        triggerVisualFeedback("👀 眼神向右：下一行");
+                    } else if (irisPos < 0.42) {
+                        scrollLines('up'); lastVisionTriggerTime = now;
+                        triggerVisualFeedback("👀 眼神向左：上一行");
+                    }
+                }
+            }
+        }
+
+        // PDF 高畫質渲染
+        document.getElementById('file-input').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file && file.type === "application/pdf") {
+                container.innerHTML = '<p style="color: #aaa; font-size:14px;">樂譜排版中...</p>';
+                const fileURL = URL.createObjectURL(file);
+                pdfjsLib.getDocument(fileURL).promise.then(pdf => {
+                    container.innerHTML = '';
+                    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                        pdf.getPage(pageNum).then(page => {
+                            const canvas = document.createElement('canvas');
+                            canvas.className = 'pdf-page-canvas';
+                            if (isDarkModeScore) canvas.classList.add('dark-score');
+                            container.appendChild(canvas);
+
+                            const context = canvas.getContext('2d');
+                            const viewport = page.getViewport({ scale: 2.3 }); 
+                            canvas.height = viewport.height;
+                            canvas.width = viewport.width;
+                            page.render({ canvasContext: context, viewport: viewport });
+                        });
+                    }
+                });
+            }
+        });
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) { document.documentElement.requestFullscreen().then(() => document.body.classList.add('fullscreen-mode')); }
+            else { document.exitFullscreen().then(() => document.body.classList.remove('fullscreen-mode')); }
+        }
+        document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement) document.body.classList.remove('fullscreen-mode'); });
+
+        // MIDI 接入
+        if (navigator.requestMIDIAccess) { navigator.requestMIDIAccess().then(onMIDISuccess, () => statusText.textContent = "MIDI 失敗"); }
+        function onMIDISuccess(midiAccess) {
+            for (let input of midiAccess.inputs.values()) {
+                input.onmidimessage = getMIDIMessage;
+                statusText.textContent = `裝置已就緒`; statusDot.classList.add('active');
+            }
+        }
+
+        function getMIDIMessage(midiMessage) {
+            if (CONTROL_MODE !== 'physical') return; // 二選一防干擾機制
+            const data = midiMessage.data; if (!data || data.length < 2) return;
+            const type = data[0] & 0xf0; const note = data[1]; const velocity = data[2];    
+            let currentSignalId = note;
+
+            if (type === 224) {
+                if (velocity > 80) currentSignalId = 'pitch_up';
+                else if (velocity < 48) currentSignalId = 'pitch_down';
+                else return;
+            }
+
+            if (bindings.down.some(b => type === b.type && currentSignalId === b.id) && (type === 144 || velocity > 64 || currentSignalId.includes('pitch'))) {
+                scrollLines('down');
+                triggerVisualFeedback("🎵 外部踏板：下一行");
+            }
+        }
+
+        function scrollLines(direction) {
+            const distance = direction === 'down' ? SCROLL_STEP : -SCROLL_STEP;
+            container.scrollBy({ top: distance, behavior: 'smooth' });
+        }
+    </script>
+    
+</body>
+</html>

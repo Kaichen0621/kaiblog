@@ -1,0 +1,54 @@
+# 音樂相關
+編曲:
+  label: '編曲'
+  permalink: /tags/arrange
+  description: '音樂編曲與製作教學'
+
+113tech-music:
+  label: '113tech 音樂教學'
+  permalink: /tags/113tech-music
+  description: '113tech 音樂系列教學'
+
+五月天:
+  label: '五月天'
+  permalink: /tags/MAYDAY
+  description: '五月天演唱會與專輯心得'
+
+# 節慶相關
+新年快樂:
+  label: '新年快樂'
+  permalink: /tags/新年快樂
+  description: '新年祝福與活動'
+
+# 生活分享
+blogblog-club:
+  label: '💭 BlogBlog 分享'
+  permalink: /tags/blogblog-club
+  description: '生活隨筆與心得'
+
+# 新增你要求的
+finale:
+  label: 'Finale 樂譜軟體'
+  permalink: /tags/finale
+  description: 'Finale 使用教學與資源'
+
+typing:
+  label: '⌨️ 打字'
+  permalink: /tags/typing
+  description: '打字練習與心得'
+
+blog:
+  label: '📝 網誌'
+  permalink: /tags/blog
+  description: '各種生活與技術文章'
+
+blogblog.club:
+  label: '📜 BlogBlog.Club'
+  permalink: /tags/blogblog-club-site
+  description: 'BlogBlog.Club 相關內容'
+
+
+prizm:
+  label: '💎 三稜鏡'
+  permalink: /tags/prizm
+  description: '三稜鏡 Prizm 相關心得'

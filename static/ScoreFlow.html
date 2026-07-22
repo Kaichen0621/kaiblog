@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ScoreFlow Pro</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';</script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
+    <style>
+        :root { --apple-bg: #121212; --apple-bar: rgba(25, 25, 25, 0.9); --apple-accent: #0071e3; --apple-success: #34c759; --apple-gray: rgba(255, 255, 255, 0.12); --apple-card: rgba(35, 35, 35, 0.96); }
+        body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif; margin: 0; padding: 0; background-color: var(--apple-bg); color: #ffffff; height: 100vh; overflow: hidden; -webkit-font-smoothing: antialiased; position: relative; }
+        header { width: 100%; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); background: var(--apple-bar); border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding: 0 20px; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; z-index: 100; height: 56px; position: absolute; top: 0; left: 0; transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1); }
+        body.fullscreen-mode header { transform: translateY(-100%); }
+        body.fullscreen-mode.show-menu header { transform: translateY(0); }
+        .logo { font-weight: 600; font-size: 16px; letter-spacing: -0.3px; color: #fff; }
+        .controls { display: flex; align-items: center; gap: 10px; flex-wrap: nowrap; }
+        .btn-control { background-color: var(--apple-gray); color: #ffffff; padding: 0 14px; height: 38px; border-radius: 10px; border: none; cursor: pointer; transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1); display: flex; align-items: center; justify-content: center; gap: 8px; box-sizing: border-box; flex-shrink: 0; position: relative; font-size: 13px; font-weight: 500; user-select: none; -webkit-user-select: none; white-space: nowrap; }
+        .btn-control:hover { background-color: rgba(255,255,255,0.2); }
+        .btn-control:active { transform: scale(0.96); }
+        .btn-control svg { width: 18px; height: 18px; fill: currentColor; }
+        .btn-text { display: inline; } 
+        .btn-control.active-vision { background-color: var(--apple-success); color: white; }
+        .btn-control.active-dark { background-color: #ffffff; color: #000000; }
+        .midi-indicator { width: 6px; height: 6px; background-color: #ff3b30; border-radius: 50%; position: absolute; top: 4px; right: 4px; }
+        .midi-indicator.connected { background-color: var(--apple-success); box-shadow: 0 0 4px var(--apple-success); }
+        #score-container { position: absolute; top: 56px; bottom: 0; left: 0; right: 0; overflow-y: scroll; scroll-behavior: smooth; padding: 20px 0; box-sizing: border-box; -webkit-overflow-scrolling: touch; transition: top 0.3s cubic-bezier(0.25, 1, 0.5, 1); z-index: 1; }
+        #score-container::-webkit-scrollbar { display: none; } 
+        body.fullscreen-mode #score-container { top: 0; }
+        body.fullscreen-mode.show-menu #score-container { top: 56px; }
+        .pdf-page-canvas { background: white; box-shadow: 0 10px 35px rgba(0,0,0,0.6); margin: 0 auto 24px auto; display: block; width: 92%; max-width: 820px; height: auto; transition: filter 0.3s ease; }
+        .pdf-page-canvas.dark-score { filter: invert(0.92) contrast(1.15) brightness(1.05); }
+        #placeholder { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 60vh; color: #888; text-align: center; padding: 20px; }
+        .hud-panel { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: rgba(0, 0, 0, 0.9); color: #fff; padding: 8px 22px; border-radius: 20px; font-size: 13px; font-weight: 500; pointer-events: none; z-index: 200; opacity: 0; transition: opacity 0.2s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.08); }
+        .hud-panel.show { opacity: 1; }
+        #camera-preview-container { position: fixed; bottom: 16px; left: 16px; width: 64px; height: 48px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); z-index: 150; background: #000; transform: scaleX(-1); display: none; opacity: 0.2; }
+        #webcam { width: 100%; height: 100%; object-fit: cover; }
+        .floating-fullscreen-btn { position: fixed; bottom: 24px; right: 24px; width: 46px; height: 46px; border-radius: 50%; background: rgba(30, 30, 30, 0.75); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.15); color: #ffffff; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 250; box-shadow: 0 4px 16px rgba(0,0,0,0.3); transition: all 0.2s ease; }
+        .floating-fullscreen-btn:hover { background: rgba(50, 50, 50, 0.9); transform: scale(1.05); }
+        .floating-fullscreen-btn:active { transform: scale(0.95); }
+        .floating-fullscreen-btn svg { width: 20px; height: 20px; fill: currentColor; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); display: flex; justify-content: center; align-items: center; z-index: 300; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; }
+        .modal-overlay.open { opacity: 1; pointer-events: auto; }
+        .modal-card { background: var(--apple-card); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 20px; width: 92%; max-width: 380px; color: white; box-sizing: border-box; max-height: 90vh; overflow-y: auto; }
+        .modal-card::-webkit-scrollbar { display: none; }
+        .setting-item { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; background: rgba(255,255,255,0.04); padding: 10px; border-radius: 10px; }
+        .setting-label { font-size: 12px; color: #bbb; display: flex; justify-content: space-between; }
+        .bind-tag { background: rgba(0, 113, 227, 0.2); border: 1px solid var(--apple-accent); color: #3a96ff; padding: 2px 6px; border-radius: 4px; font-size: 11px; }
+        select { background: #2c2c2e; color: white; border: none; padding: 6px; border-radius: 6px; font-size: 12px; width: 100%; }
+        input[type="range"] { width: 100%; accent-color: var(--apple-accent); }
+        @media (max-width: 768px) {
+            header { padding: 0 8px; }
+            .logo { display: none; } 
+            .controls { width: 100%; justify-content: space-between; gap: 4px; }
+            .btn-control { padding: 0 8px; height: 36px; border-radius: 8px; font-size: 11px; gap: 4px; }
+            .btn-control .btn-text { display: none; }
+            #btn-mode .btn-text, #lbl-mode { display: inline !important; } 
+            .floating-fullscreen-btn { width: 42px; height: 42px; bottom: 16px; right: 16px; } 
+        }
+    </style>
+</head>
+<body>
+    <header id="top-bar">
+        <div class="logo">ScoreFlow Pro</div>
+        <div class="controls">
+            <label class="btn-control"><svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg><span class="btn-text">載入</span><input type="file" id="file-input" accept="application/pdf" style="display: none;"></label>
+            <button id="btn-mode" class="btn-control" onclick="toggleControlMode(event)"><svg viewBox="0 0 24 24"><path d="M12 2c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 19.4c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l2.79-2.79C10.09 18.66 11.03 19 12 19c4.97 0 9-4.03 9-9s-4.03-9-9-9zm0 15c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"/></svg><span class="btn-text" id="lbl-mode">鍵盤/MIDI</span><span id="midi-dot" class="midi-indicator"></span></button>
+            <button id="btn-dark" class="btn-control" onclick="toggleDarkScore(event)"><svg viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg><span class="btn-text">深色</span></button>
+            <button class="btn-control" onclick="openSettings(event)"><svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg><span class="btn-text">設定</span></button>
+        </div>
+    </header>
+    <div class="floating-fullscreen-btn" onclick="toggleFullscreen(event)" id="float-fs-btn"><svg id="fs-icon-enter" viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg><svg id="fs-icon-exit" viewBox="0 0 24 24" style="display:none;"><path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/></svg></div>
+    <div id="camera-preview-container"><video id="webcam" autoplay playsinline></video></div>
+    <div id="score-container"><div id="placeholder"><h3 style="margin-bottom:8px; color: #fff;">ScoreFlow Pro</h3><p style="font-size:13px; margin:0;">點擊上方「載入樂譜」載入 PDF</p></div></div>
+    <div class="hud-panel" id="hud"></div>
+    <div class="modal-overlay" id="settings-modal" onclick="closeSettings()">
+        <div class="modal-card" onclick="event.stopPropagation()">
+            <div style="font-weight:600; font-size:15px; text-align:center; margin-bottom:14px;">參數細微調校</div>
+            <div class="setting-item"><div class="setting-label"><span>🤖 AI 辨識型態</span></div><select id="vision-mode-select" onchange="updateVisionMode(this.value)"><option value="wink">😉 左右單眼眨眼</option><option value="tilt">📐 微幅左右歪頭</option></select></div>
+            <div class="setting-item"><div class="setting-label"><span>📏 翻動幅度: <span id="step-val" style="color:var(--apple-accent)">250px</span></span></div><input type="range" min="50" max="600" step="10" id="step-slider" value="250" oninput="updateStep(this.value)"></div>
+            <div class="setting-item"><div class="setting-label"><span>🎹 MIDI 往下翻</span><span style="color:#ff4d4d; cursor:pointer;" onclick="clearBindings('down')">清空</span></div><div style="display:flex; gap:4px; margin-top:4px; flex-wrap: wrap;" id="bind-list-down"></div><button id="btn-rec-down" style="background:var(--apple-accent); border:none; color:#fff; border-radius:6px; padding:6px; font-size:11px; margin-top:6px; cursor:pointer;" onclick="startRecord('down')">+ 錄製往下翻</button></div>
+            <div class="setting-item"><div class="setting-label"><span>🎹 MIDI 往上翻</span><span style="color:#ff4d4d; cursor:pointer;" onclick="clearBindings('up')">清空</span></div><div style="display:flex; gap:4px; margin-top:4px; flex-wrap: wrap;" id="bind-list-up"></div><button id="btn-rec-up" style="background:var(--apple-accent); border:none; color:#fff; border-radius:6px; padding:6px; font-size:11px; margin-top:6px; cursor:pointer;" onclick="startRecord('up')">+ 錄製往上翻</button></div>
+            <button class="btn-control" style="width:100%; border-radius:8px; height:36px; margin-top:10px; background:rgba(255,255,255,0.08);" onclick="closeSettings()">完成</button>
+        </div>
+    </div>
+    <script>
+        const container = document.getElementById('score-container'), hud = document.getElementById('hud'), modal = document.getElementById('settings-modal'), videoElement = document.getElementById('webcam'), cameraContainer = document.getElementById('camera-preview-container'), midiDot = document.getElementById('midi-dot');
+        let SCROLL_STEP = 250, isDarkModeScore = false, lastVisionTriggerTime = 0, VISION_COOLDOWN = 1000, CONTROL_MODE = 'physical', SELECTED_VISION_MODE = 'wink', recordingTarget = null, faceMesh = null, camera = null, hudTimeout = null, menuTimeout = null;
+        let bindings = { down: [{ type: 176, id: 64, desc: '延音踏板' }, { type: 144, id: 59, desc: '鋼琴 B3 鍵' }], up: [] };
+        function autoAdjustStep() { if (window.innerWidth <= 768) { SCROLL_STEP = 120; document.getElementById('step-slider').value = SCROLL_STEP; document.getElementById('step-val').textContent = SCROLL_STEP + 'px(手機微調)'; } else { SCROLL_STEP = 250; document.getElementById('step-slider').value = SCROLL_STEP; document.getElementById('step-val').textContent = SCROLL_STEP + 'px'; } }
+        window.addEventListener('resize', autoAdjustStep); autoAdjustStep();
+        container.addEventListener('click', () => { if (document.fullscreenElement) { document.body.classList.toggle('show-menu'); clearTimeout(menuTimeout); if (document.body.classList.contains('show-menu')) menuTimeout = setTimeout(() => { document.body.classList.remove('show-menu'); }, 4000); } });
+        function toggleControlMode(e) { if(e) e.stopPropagation(); const btn = document.getElementById('btn-mode'), lbl = document.getElementById('lbl-mode'); if (CONTROL_MODE === 'physical') { CONTROL_MODE = 'vision'; btn.classList.add('active-vision'); if(lbl) lbl.textContent = "AI 視覺"; cameraContainer.style.display = 'block'; showHUD("🤖 AI 啟動"); initFaceMeshEngine(); } else { CONTROL_MODE = 'physical'; btn.classList.remove('active-vision'); if(lbl) lbl.textContent = "已就緒"; cameraContainer.style.display = 'none'; showHUD("🎹 MIDI/鍵盤"); if (camera) camera.stop(); } }
+        document.addEventListener('keydown', e => { if (e.key === ' ') { e.preventDefault(); toggleControlMode(); } if (e.key === 'f' || e.key === 'F') { e.preventDefault(); toggleFullscreen(); } if (CONTROL_MODE !== 'physical') return; if (e.key === 'ArrowDown') { e.preventDefault(); scrollLines('down'); } else if (e.key === 'ArrowUp') { e.preventDefault(); scrollLines('up'); } });
+        function showHUD(msg) { clearTimeout(hudTimeout); hud.textContent = msg; hud.classList.add('show'); hudTimeout = setTimeout(() => { hud.classList.remove('show'); }, 1000); }
+        function scrollLines(dir) { container.scrollBy({ top: dir === 'down' ? SCROLL_STEP : -SCROLL_STEP, behavior: 'smooth' }); }
+        function openSettings(e) { if(e) e.stopPropagation(); updateBindUI(); modal.classList.add('open'); }
+        function closeSettings() { modal.classList.remove('open'); resetRecordButtons(); recordingTarget = null; }
+        function updateStep(val) { SCROLL_STEP = parseInt(val); document.getElementById('step-val').textContent = val + 'px'; }
+        function updateVisionMode(val) { SELECTED_VISION_MODE = val; }
+        function toggleDarkScore(e) { if(e) e.stopPropagation(); isDarkModeScore = !isDarkModeScore; document.querySelectorAll('.pdf-page-canvas').forEach(c => c.classList.toggle('dark-score', isDarkModeScore)); document.getElementById('btn-dark').classList.toggle('active-dark', isDarkModeScore); showHUD(isDarkModeScore ? "🌙 深色" : "☀️ 原色"); }
+        function updateBindUI() { ['down', 'up'].forEach(t => { const b = document.getElementById(`bind-list-${t}`); b.innerHTML = bindings[t].length === 0 ? '<span style="font-size:11px;color:#555;">未設定</span>' : ''; bindings[t].forEach(v => { const s = document.createElement('span'); s.className = 'bind-tag'; s.textContent = v.desc; b.appendChild(s); }); }); }
+        function startRecord(t) { recordingTarget = t; resetRecordButtons(); document.getElementById(`btn-rec-${t}`).textContent = '偵測中...'; document.getElementById(`btn-rec-${t}`).style.background = '#ff9500'; }
+        function resetRecordButtons() { ['down', 'up'].forEach(t => { document.getElementById(`btn-rec-${t}`).textContent = '+ 錄製' + (t==='down'?'往下':'往上') + '翻'; document.getElementById(`btn-rec-${t}`).style.background = 'var(--apple-accent)'; }); }
+        function clearBindings(t) { bindings[t] = []; updateBindUI(); showHUD("已清除"); }
+        if (navigator.requestMIDIAccess) navigator.requestMIDIAccess().then(a => { for (let i of a.inputs.values()) i.onmidimessage = getMIDIMessage; a.onstatechange = () => { midiDot.classList.toggle('connected', a.inputs.size > 0); if (a.inputs.size > 0 && CONTROL_MODE !== 'vision') document.getElementById('lbl-mode').textContent = "已就緒"; }; if(a.inputs.size > 0) midiDot.classList.add('connected'); });
+        function getMIDIMessage(m) { const d = m.data; if (!d || d.length < 2) return; const t = d[0] & 0xf0, n = d[1], v = d[2] || 0; let s = n, desc = `鍵位: ${n}`; if (t === 224) { s = v > 70 ? 'pitch_up' : 'pitch_down'; desc = v > 70 ? '變音▲' : '變音▼'; } else if (t === 176 && n === 64) desc = '踏板'; if (recordingTarget) { if (t === 144 || t === 176 || t === 224) { if (!bindings[recordingTarget].some(b => b.type === t && String(b.id) === String(s))) { bindings[recordingTarget].push({ type: t, id: s, desc: desc }); updateBindUI(); } resetRecordButtons(); recordingTarget = null; } return; } if (CONTROL_MODE !== 'physical') return; if (bindings.down.some(b => t === b.type && String(s) === String(b.id))) { if (t === 144 || v > 60 || String(s).includes('pitch')) scrollLines('down'); } else if (bindings.up.some(b => t === b.type && String(s) === String(b.id))) { if (t === 144 || v > 60 || String(s).includes('pitch')) scrollLines('up'); } }
+        function initFaceMeshEngine() { if (faceMesh) { camera.start(); return; } faceMesh = new FaceMesh({locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${f}`}); faceMesh.setOptions({ maxNumFaces: 1, refineLandmarks: true, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5 }); faceMesh.onResults(onVisionResults); camera = new Camera(videoElement, { onFrame: async () => { if (CONTROL_MODE === 'vision') await faceMesh.send({image: videoElement}); }, width: 320, height: 240 }); camera.start(); }
+        function onVisionResults(r) { if (CONTROL_MODE !== 'vision' || !r.multiFaceLandmarks || r.multiFaceLandmarks.length === 0) return; const l = r.multiFaceLandmarks[0], now = performance.now(); if (now - lastVisionTriggerTime < VISION_COOLDOWN) return; const rd = Math.hypot(l[159].y-l[145].y), rw = Math.hypot(l[133].x-l[33].x), ld = Math.hypot(l[386].y-l[374].y), lw = Math.hypot(l[263].x-l[362].x), ta = Math.atan2(l[263].y-l[33].y, l[263].x-l[33].x) * (180/Math.PI); if (SELECTED_VISION_MODE === 'wink') { if (rd/rw < 0.14 && ld/lw > 0.17) { scrollLines('down'); lastVisionTriggerTime = now; } else if (ld/lw < 0.14 && rd/rw > 0.17) { scrollLines('up'); lastVisionTriggerTime = now; } } else if (SELECTED_VISION_MODE === 'tilt') { if (ta > 4.0) { scrollLines('down'); lastVisionTriggerTime = now; } else if (ta < -4.0) { scrollLines('up'); lastVisionTriggerTime = now; } } }
+        document.getElementById('file-input').addEventListener('change', e => { const f = e.target.files[0]; if (f && f.type === "application/pdf") { container.innerHTML = ''; const u = URL.createObjectURL(f); pdfjsLib.getDocument(u).promise.then(p => { for (let i = 1; i <= p.numPages; i++) { const c = document.createElement('canvas'); c.className = 'pdf-page-canvas'; container.appendChild(c); p.getPage(i).then(pg => { const vp = pg.getViewport({ scale: 2.5 }); c.height = vp.height; c.width = vp.width; pg.render({ canvasContext: c.getContext('2d'), viewport: vp }); }); } showHUD("已載入"); }); } });
+        function toggleFullscreen(e) { if(e) e.stopPropagation(); if (!document.fullscreenElement) { document.documentElement.requestFullscreen().then(() => { document.body.classList.add('fullscreen-mode'); document.getElementById('fs-icon-enter').style.display = 'none'; document.getElementById('fs-icon-exit').style.display = 'block'; }); } else { document.exitFullscreen().then(() => { document.body.classList.remove('fullscreen-mode', 'show-menu'); document.getElementById('fs-icon-enter').style.display = 'block'; document.getElementById('fs-icon-exit').style.display = 'none'; }); } }
+        document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement) { document.body.classList.remove('fullscreen-mode', 'show-menu'); document.getElementById('fs-icon-enter').style.display = 'block'; document.getElementById('fs-icon-exit').style.display = 'none'; } });
+    </script>
+</body>
+</html>

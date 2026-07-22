@@ -1,0 +1,610 @@
+/* 顏色變數 - 拓元風格 */
+:root {
+  --tix-blue: #0056cc;
+  --tix-blue-dark: #00588f;
+  --tix-green: #28a745;
+  --tix-bg: #f8f9fa;
+  --tix-card: #ffffff;
+  --tix-text: #333333;
+  --tix-text-muted: #6c757d;
+  --tix-border: #dee2e6;
+  --tix-table-head: #f1f3f5;
+  --tix-area-bg: #ffffff;
+  --tix-light-blue: #e7f1ff;
+  --tix-shadow: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme='dark'] {
+  --tix-blue: #429EEE;
+  --tix-blue-dark: #317dc0;
+  --tix-bg: #121212;
+  --tix-card: #1e1e1e;
+  --tix-text: #e0e0e0;
+  --tix-text-muted: #adb5bd;
+  --tix-border: #333333;
+  --tix-table-head: #2a2a2a;
+  --tix-area-bg: #252525;
+  --tix-light-blue: #1a2a44;
+  --tix-shadow: rgba(0, 0, 0, 0.5);
+}
+
+.wrapper {
+  background: var(--tix-bg);
+  min-height: 100vh;
+  padding: 10px;
+  color: var(--tix-text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  transition: background 0.3s, color 0.3s;
+}
+
+/* Progress Bar - Responsive & Dark Mode */
+.progressBar {
+  background: var(--tix-card);
+  padding: 12px 0;
+  display: flex;
+  justify-content: center;
+  border-bottom: 1px solid var(--tix-border);
+  margin-bottom: 15px;
+  border-radius: 4px;
+}
+
+.steps {
+  display: flex;
+  width: 100%;
+  max-width: 600px;
+  justify-content: space-between;
+  position: relative;
+  padding: 0 10px;
+}
+
+.steps::before {
+  content: "";
+  position: absolute;
+  top: 12px;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: var(--tix-border);
+  z-index: 1;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 2;
+  flex: 1;
+}
+
+.stepCircle {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--tix-border);
+  color: var(--tix-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 0.75rem;
+  margin-bottom: 4px;
+  border: 2px solid var(--tix-card);
+  transition: all 0.3s;
+}
+
+.step.active .stepCircle {
+  background: var(--tix-blue);
+  color: #fff;
+  transform: scale(1.1);
+}
+
+.step.completed .stepCircle {
+  background: var(--tix-green);
+  color: #fff;
+}
+
+.stepText {
+  font-size: 0.65rem;
+  color: var(--tix-text-muted);
+  text-align: center;
+}
+
+.step.active .stepText {
+  color: var(--tix-blue);
+  font-weight: bold;
+}
+
+/* Container */
+.appContainer {
+  max-width: 960px;
+  margin: 0 auto;
+  background: var(--tix-card);
+  border: 1px solid var(--tix-border);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px var(--tix-shadow);
+}
+
+/* Landing Page */
+.landing {
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.introContent h1 {
+  font-size: 1.8rem;
+  margin-bottom: 12px;
+  color: var(--tix-blue);
+}
+
+.introContent p {
+  color: var(--tix-text-muted);
+  font-size: 0.9rem;
+}
+
+.startZone {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.btnStartCountdown {
+  background: transparent;
+  color: var(--tix-blue);
+  border: 2px solid var(--tix-blue);
+  padding: 12px 35px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btnStartCountdown:hover {
+  background: var(--tix-blue);
+  color: #fff;
+}
+
+.countdownDisplay {
+  font-size: 4rem;
+  font-weight: 900;
+  color: var(--tix-blue);
+  margin: 15px 0;
+  text-shadow: 0 0 10px rgba(0, 86, 204, 0.2);
+}
+
+.btnBuyNow {
+  background: var(--tix-blue);
+  color: #fff;
+  border: none;
+  width: 100%;
+  max-width: 320px;
+  padding: 15px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btnBuyNow:hover {
+  background: var(--tix-blue-dark);
+}
+
+/* Session List */
+.sessionList {
+  padding: 20px;
+}
+
+.sectionTitle {
+  font-size: 1.3rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+  border-left: 5px solid var(--tix-blue);
+  padding-left: 15px;
+  color: var(--tix-text);
+}
+
+.tixTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tixTable th {
+  background: var(--tix-table-head);
+  padding: 12px;
+  border: 1px solid var(--tix-border);
+  font-size: 0.9rem;
+  text-align: left;
+  color: var(--tix-text-muted);
+}
+
+.tixTable td {
+  padding: 12px;
+  border: 1px solid var(--tix-border);
+  font-size: 0.9rem;
+  color: var(--tix-text);
+}
+
+.btnSelect {
+  background: var(--tix-green);
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+/* Area Selection - Better Mobile Experience */
+.areaHeader {
+  padding: 15px 20px;
+  background: var(--tix-table-head);
+  border-bottom: 1px solid var(--tix-border);
+  font-size: 0.9rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.areaContent {
+  display: flex;
+  flex-direction: row;
+  height: 500px;
+}
+
+.mapBox {
+  flex: 1.5;
+  background: #fff;
+  /* Always white for the map image contrast */
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid var(--tix-border);
+}
+
+.mapBox img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.areaList {
+  flex: 1;
+  background: var(--tix-card);
+  display: flex;
+  flex-direction: column;
+}
+
+.areaListHeader {
+  background: #004fb0;
+  color: white;
+  padding: 12px 15px;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.areaListScroll {
+  overflow-y: auto;
+  flex: 1;
+}
+
+.groupLabel {
+  background: var(--tix-table-head);
+  padding: 8px 15px;
+  font-weight: bold;
+  font-size: 0.8rem;
+  color: var(--tix-text-muted);
+}
+
+.areaItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  border-bottom: 1px solid var(--tix-border);
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.2s;
+}
+
+.areaItem:hover {
+  background: var(--tix-light-blue);
+}
+
+.areaName {
+  color: var(--tix-text);
+}
+
+.statusHot {
+  color: #dc3545;
+  font-weight: bold;
+  font-size: 0.75rem;
+  margin-left: 8px;
+}
+
+/* Form Page */
+.formPage {
+  padding: 25px;
+}
+
+.summaryCard {
+  background: var(--tix-light-blue);
+  padding: 15px;
+  border-radius: 6px;
+  margin-bottom: 25px;
+  border-left: 5px solid var(--tix-blue);
+  font-size: 0.9rem;
+  color: var(--tix-text);
+}
+
+.qtyRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 0;
+  border-bottom: 1px solid var(--tix-border);
+  font-size: 1rem;
+}
+
+.qtyRow select {
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid var(--tix-border);
+  background: var(--tix-card);
+  color: var(--tix-text);
+}
+
+/* Captcha - Dark Mode Adjusted */
+.captchaContainer {
+  margin: 25px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.captchaDisplay {
+  background: #0056cc;
+  width: 240px;
+  height: 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-bottom: 15px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.3);
+}
+
+.captchaDisplay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(45deg,
+      rgba(255, 255, 255, 0.1),
+      rgba(255, 255, 255, 0.1) 1px,
+      transparent 1px,
+      transparent 12px);
+  pointer-events: none;
+}
+
+.captchaDisplay span {
+  color: #ffffff;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 3rem;
+  font-weight: 900;
+  display: inline-block;
+  margin: 0 4px;
+  text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.5);
+  letter-spacing: 2px;
+}
+
+.captchaInput {
+  width: 100%;
+  max-width: 240px;
+  padding: 12px;
+  font-size: 1.3rem;
+  text-align: center;
+  border: 2px solid var(--tix-blue);
+  border-radius: 6px;
+  background: var(--tix-card);
+  color: var(--tix-text);
+  text-transform: lowercase;
+}
+
+.agreement {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 20px 0;
+  font-size: 0.85rem;
+  color: var(--tix-text-muted);
+}
+
+.btnConfirm {
+  background: var(--tix-green);
+  color: white;
+  border: none;
+  padding: 12px 40px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btnBack {
+  background: transparent;
+  color: var(--tix-text-muted);
+  border: 1px solid var(--tix-border);
+  padding: 8px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-right: 15px;
+  font-size: 0.9rem;
+}
+
+/* Result Page */
+.resultPage {
+  padding: 50px 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: var(--tix-light-blue);
+}
+
+.resultCard {
+  width: 100%;
+  max-width: 480px;
+  background: var(--tix-card);
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 15px 40px var(--tix-shadow);
+  text-align: center;
+}
+
+.successIcon {
+  color: var(--tix-green);
+  font-size: 4rem;
+  margin-bottom: 20px;
+}
+
+.resultDetails {
+  text-align: left;
+  background: var(--tix-table-head);
+  padding: 25px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+}
+
+.resRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--tix-border);
+  font-size: 0.95rem;
+  color: var(--tix-text);
+}
+
+.resRow:last-child {
+  border-bottom: none;
+}
+
+.resRow strong {
+  color: var(--tix-blue);
+  font-size: 1.2rem;
+}
+
+/* Loading Overlay */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--tix-bg);
+  opacity: 0.95;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.loader {
+  width: 60px;
+  height: 60px;
+  border: 6px solid var(--tix-border);
+  border-top: 6px solid var(--tix-blue);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .wrapper {
+    padding: 5px;
+  }
+
+  .appContainer {
+    border: none;
+    border-radius: 0;
+  }
+
+  .areaContent {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .mapBox {
+    border-right: none;
+    border-bottom: 1px solid var(--tix-border);
+    padding: 30px 15px;
+  }
+
+  .areaList {
+    height: 350px;
+  }
+
+  .steps::before {
+    left: 15%;
+    right: 15%;
+  }
+
+  .stepText {
+    font-size: 0.6rem;
+  }
+
+  .introContent h1 {
+    font-size: 1.4rem;
+  }
+
+  .countdownDisplay {
+    font-size: 3rem;
+  }
+
+  .tixTable th,
+  .tixTable td {
+    padding: 8px;
+    font-size: 0.8rem;
+  }
+
+  .mobileHide {
+    display: none;
+  }
+
+  .btnSelect {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+  }
+
+  .btnConfirm,
+  .btnRestart,
+  .btnBuyNow {
+    width: 100%;
+    max-width: none;
+  }
+
+  .btnBack {
+    width: 100%;
+    margin-right: 0;
+    margin-bottom: 10px;
+  }
+
+  .formPage {
+    padding: 15px;
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}

@@ -1,0 +1,1685 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EdTyping Pro - 獨立版極速鍵盤打字學院</title>
+    <style>
+        /* 100% 離線本地 CSS 系統 - 精心設計的現代配色與暗黑模式 */
+        :root {
+            --bg-main: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-key: #f1f5f9;
+            --border-color: #e2e8f0;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --brand-color: #0ea5e9;
+            --brand-hover: #0284c7;
+            --brand-bg: rgba(14, 165, 233, 0.1);
+            --correct-color: #10b981;
+            --correct-bg: rgba(16, 185, 129, 0.1);
+            --wrong-color: #ef4444;
+            --wrong-bg: rgba(239, 68, 68, 0.15);
+            --keyboard-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --modal-overlay: rgba(15, 23, 42, 0.6);
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        }
+
+        html.dark {
+            --bg-main: #0f172a;
+            --bg-card: #1e293b;
+            --bg-key: #334155;
+            --border-color: #475569;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --brand-color: #38bdf8;
+            --brand-hover: #0ea5e9;
+            --brand-bg: rgba(56, 189, 248, 0.1);
+            --correct-color: #34d399;
+            --correct-bg: rgba(52, 211, 153, 0.15);
+            --wrong-color: #f87171;
+            --wrong-bg: rgba(248, 113, 113, 0.2);
+            --keyboard-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+            --modal-overlay: rgba(2, 6, 23, 0.85);
+        }
+
+        /* 重設基礎樣式 */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.25s ease, border-color 0.25s ease;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            min-height: 100/vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            line-height: 1.5;
+        }
+
+        /* 頂部導航 */
+        header {
+            border-b: 1px solid var(--border-color);
+            background-color: var(--bg-card);
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            background: linear-gradient(135deg, #0ea5e9, #06b6d4);
+            color: white;
+            padding: 0.6rem;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+        }
+
+        .logo-text {
+            font-size: 1.4rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            background: linear-gradient(to right, var(--brand-color), #22d3ee);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-sub {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            display: block;
+            margin-top: -2px;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        /* 離線標章 */
+        .offline-badge {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .btn-icon {
+            background-color: var(--bg-key);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.25rem;
+            height: 2.25rem;
+        }
+
+        .btn-icon:hover {
+            color: var(--text-main);
+            border-color: var(--brand-color);
+        }
+
+        .btn-primary {
+            background-color: var(--brand-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.85rem;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--brand-hover);
+        }
+
+        /* 核心版面設定 */
+        main {
+            flex-grow: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.5rem;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        /* 頂部即時統計板 */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+        }
+
+        .stat-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 1rem 1.25rem;
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+
+        .stat-icon {
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .stat-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-size: 1.25rem;
+            font-weight: 800;
+        }
+
+        .progress-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 0.4rem;
+        }
+
+        .progress-track {
+            background-color: var(--bg-key);
+            height: 0.5rem;
+            border-radius: 9999px;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .progress-bar {
+            background: linear-gradient(to right, var(--brand-color), #22d3ee);
+            height: 100%;
+            width: 0%;
+            border-radius: 9999px;
+            transition: width 0.15s ease;
+        }
+
+        /* 打字核心區域 */
+        .typing-stage {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 1.5rem;
+            padding: 2.5rem 1.5rem;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 240px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+        }
+
+        .stage-header {
+            position: absolute;
+            top: 1rem;
+            left: 1.5rem;
+            right: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .badge {
+            background-color: var(--brand-bg);
+            color: var(--brand-color);
+            border: 1px solid rgba(14, 165, 233, 0.2);
+            font-size: 0.7rem;
+            font-weight: bold;
+            padding: 0.25rem 0.6rem;
+            border-radius: 9999px;
+        }
+
+        /* 真正的關鍵：打字大字區 */
+        .typing-box {
+            width: 100%;
+            max-width: 950px;
+            text-align: center;
+            font-family: var(--font-mono);
+            font-size: 2.2rem;
+            letter-spacing: 0.15em;
+            line-height: 1.7;
+            user-select: none;
+            outline: none;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        /* 字元狀態 */
+        .char-default {
+            color: var(--text-muted);
+            opacity: 0.55;
+            transition: all 0.1s;
+        }
+
+        .correct-char {
+            color: var(--correct-color);
+            opacity: 1;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(16, 185, 129, 0.15);
+        }
+
+        .wrong-char {
+            color: var(--wrong-color);
+            background-color: var(--wrong-bg);
+            opacity: 1;
+            border-radius: 3px;
+            text-decoration: underline;
+        }
+
+        .cursor-active {
+            border-bottom: 4px solid var(--brand-color);
+            animation: cursorBlink 1.2s infinite;
+            opacity: 1;
+            color: var(--text-main);
+        }
+
+        @keyframes cursorBlink {
+            0%, 100% { border-color: transparent; }
+            50% { border-color: var(--brand-color); }
+        }
+
+        /* 焦點警示遮罩 */
+        .focus-overlay {
+            position: absolute;
+            inset: 0;
+            background-color: var(--modal-overlay);
+            backdrop-filter: blur(4px);
+            border-radius: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            cursor: pointer;
+            z-index: 20;
+            opacity: 1;
+            transition: opacity 0.2s ease;
+        }
+
+        .focus-overlay.hidden {
+            display: none;
+        }
+
+        .focus-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 1.5rem 2rem;
+            border-radius: 1.25rem;
+            text-align: center;
+            box-shadow: var(--keyboard-shadow);
+            max-width: 90%;
+        }
+
+        /* 手指與虛擬鍵盤 */
+        .guide-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (min-width: 1024px) {
+            .guide-grid {
+                grid-template-columns: 280px 1fr;
+            }
+        }
+
+        /* 指法提示版 */
+        .hands-panel {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 1.5rem;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .hands-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            align-self: flex-start;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .hands-svg-container {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+
+        .hand-svg {
+            width: 110px;
+            height: 110px;
+            color: var(--text-muted);
+            opacity: 0.45;
+        }
+
+        .hand-active-finger {
+            fill: var(--brand-color) !important;
+            opacity: 1 !important;
+            transition: fill 0.1s ease;
+        }
+
+        /* 虛擬鍵盤 */
+        .keyboard-panel {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 1.5rem;
+            padding: 1.25rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+            overflow-x: auto;
+        }
+
+        .keyboard-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+            min-width: 720px;
+        }
+
+        .keyboard-row {
+            display: flex;
+            justify-content: center;
+            gap: 0.35rem;
+        }
+
+        .key {
+            background-color: var(--bg-key);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            border-radius: 0.4rem;
+            height: 2.8rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            font-weight: bold;
+            user-select: none;
+            transition: all 0.08s ease;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        /* 按鍵寬度標準 */
+        .key-std { width: 2.8rem; }
+        .key-space { width: 18rem; }
+        .key-back { width: 4.5rem; }
+        .key-tab { width: 3.8rem; }
+        .key-caps { width: 4.6rem; }
+        .key-enter { width: 5rem; }
+        .key-shift-l { width: 5.8rem; }
+        .key-shift-r { width: 6rem; }
+
+        /* 按鍵高亮狀態 */
+        .key-target {
+            background-color: var(--brand-color) !important;
+            color: white !important;
+            border-color: var(--brand-color) !important;
+            transform: scale(0.96);
+            box-shadow: 0 0 12px var(--brand-color);
+        }
+
+        /* 關卡選擇地圖 */
+        .lessons-section {
+            padding-top: 1rem;
+        }
+
+        .section-header {
+            margin-bottom: 1.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-title {
+            font-size: 1.35rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .lessons-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 1rem;
+        }
+
+        .lesson-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+        }
+
+        .lesson-card:hover {
+            border-color: var(--brand-color);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.05);
+        }
+
+        .lesson-card.active {
+            border-color: var(--brand-color);
+            background-color: var(--brand-bg);
+        }
+
+        .lesson-num {
+            align-self: flex-start;
+            font-size: 0.65rem;
+            font-weight: 900;
+            background-color: var(--bg-key);
+            color: var(--text-muted);
+            padding: 0.2rem 0.5rem;
+            border-radius: 0.4rem;
+            text-transform: uppercase;
+        }
+
+        .lesson-card.active .lesson-num {
+            background-color: var(--brand-color);
+            color: white;
+        }
+
+        .lesson-info {
+            margin-top: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .lesson-title {
+            font-size: 0.95rem;
+            font-weight: 800;
+            margin-bottom: 0.25rem;
+            line-height: 1.3;
+        }
+
+        .lesson-desc {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        .lesson-footer {
+            border-top: 1px solid var(--border-color);
+            padding-top: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .stars-row {
+            display: flex;
+            gap: 0.1rem;
+        }
+
+        .star-svg {
+            width: 14px;
+            height: 14px;
+            fill: #e2e8f0;
+        }
+
+        .star-svg.filled {
+            fill: #f59e0b;
+        }
+
+        /* 說明導引 */
+        .tips-panel {
+            background: linear-gradient(135deg, var(--bg-card) 0%, rgba(14, 165, 233, 0.03) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+        }
+
+        .tips-title {
+            font-size: 1rem;
+            font-weight: 800;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tips-list {
+            list-style-type: none;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .tips-list li {
+            position: relative;
+            padding-left: 1.25rem;
+        }
+
+        .tips-list li::before {
+            content: "✦";
+            position: absolute;
+            left: 0;
+            color: var(--brand-color);
+            font-weight: bold;
+        }
+
+        /* 結算彈窗 Modal */
+        .modal {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            background-color: var(--modal-overlay);
+            backdrop-filter: blur(8px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 2rem;
+            width: 100%;
+            max-width: 480px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+            transform: translateY(20px);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .modal.active .modal-card {
+            transform: translateY(0);
+        }
+
+        .modal-banner {
+            height: 8px;
+            background: linear-gradient(to right, #0ea5e9, #22d3ee, #6366f1);
+        }
+
+        .modal-body {
+            padding: 2.5rem 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .trophy-container {
+            background-color: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            border-radius: 9999px;
+            width: 5rem;
+            height: 5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.25rem;
+            color: #f59e0b;
+        }
+
+        .stars-big {
+            display: flex;
+            gap: 0.5rem;
+            margin: 1.25rem 0;
+        }
+
+        .stars-big .star-svg {
+            width: 32px;
+            height: 32px;
+        }
+
+        .modal-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            width: 100%;
+            background-color: var(--bg-key);
+            padding: 1.25rem;
+            border-radius: 1.25rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .modal-stat-col {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-stat-col:first-child {
+            border-right: 1px solid var(--border-color);
+        }
+
+        .modal-btn-row {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 0.75rem;
+            width: 100%;
+        }
+
+        .btn-secondary {
+            background-color: var(--bg-key);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            font-size: 0.85rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--border-color);
+        }
+
+        /* 頁尾 */
+        footer {
+            border-top: 1px solid var(--border-color);
+            background-color: var(--bg-card);
+            padding: 1.5rem;
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* 輔助定位類別 */
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <!-- 100% 離線 SVG 資源模組 (代替外部 FontAwesome 圖標) -->
+    <svg class="hidden">
+        <defs>
+            <g id="icon-keyboard">
+                <rect x="2" y="4" width="20" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="2"/>
+                <line x1="6" y1="8" x2="6" y2="8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <line x1="10" y1="8" x2="10" y2="8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <line x1="14" y1="8" x2="14" y2="8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <line x1="18" y1="8" x2="18" y2="8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <line x1="6" y1="12" x2="6" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <line x1="10" y1="12" x2="10" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <line x1="14" y1="12" x2="14" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <line x1="18" y1="12" x2="18" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <line x1="7" y1="16" x2="17" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </g>
+            <g id="icon-sun">
+                <circle cx="12" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="2"/>
+                <line x1="12" y1="1" x2="12" y2="3" stroke="currentColor" stroke-width="2"/>
+                <line x1="12" y1="21" x2="12" y2="23" stroke="currentColor" stroke-width="2"/>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" stroke="currentColor" stroke-width="2"/>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" stroke="currentColor" stroke-width="2"/>
+                <line x1="1" y1="12" x2="3" y2="12" stroke="currentColor" stroke-width="2"/>
+                <line x1="21" y1="12" x2="23" y2="12" stroke="currentColor" stroke-width="2"/>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" stroke="currentColor" stroke-width="2"/>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" stroke="currentColor" stroke-width="2"/>
+            </g>
+            <g id="icon-moon">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+            </g>
+            <g id="icon-volume">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </g>
+            <g id="icon-volume-mute">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                <line x1="23" y1="9" x2="17" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <line x1="17" y1="9" x2="23" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </g>
+            <g id="icon-restart">
+                <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </g>
+            <g id="icon-arrow-right">
+                <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <polyline points="12 5 19 12 12 19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </g>
+            <g id="icon-trophy">
+                <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" fill="none" stroke="currentColor" stroke-width="2"/>
+                <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" fill="none" stroke="currentColor" stroke-width="2"/>
+                <path d="M4 22h16" fill="none" stroke="currentColor" stroke-width="2"/>
+                <path d="M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34" fill="none" stroke="currentColor" stroke-width="2"/>
+                <path d="M12 2a6 6 0 0 1 6 6v5a6 6 0 0 1-6 6 6 6 0 0 1-6-6V8a6 6 0 0 1 6-6z" fill="none" stroke="currentColor" stroke-width="2"/>
+            </g>
+            <g id="icon-gauge">
+                <path d="M12 2a10 10 0 0 0-10 10 10 10 0 0 0 13.42 9.42M19.42 13.42A10 10 0 0 0 22 12a10 10 0 0 0-8.58-9.9" fill="none" stroke="currentColor" stroke-width="2"/>
+                <polyline points="12 12 16 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <circle cx="12" cy="12" r="1" fill="currentColor"/>
+            </g>
+            <g id="icon-star">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </g>
+            <g id="icon-academic">
+                <path d="M22 10v6M2 10l10-5 10 5-10 5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </g>
+            <g id="icon-check">
+                <polyline points="20 6 9 17 4 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </g>
+        </defs>
+    </svg>
+
+    <!-- 頂部導航欄 -->
+    <header>
+        <div class="header-container">
+            <div class="logo-section">
+                <div class="logo-icon">
+                    <svg width="24" height="24"><use href="#icon-keyboard"/></svg>
+                </div>
+                <div>
+                    <span class="logo-text">EdTyping Pro</span>
+                    <span class="logo-sub">純淨離線版 · 肌肉記憶指法特訓</span>
+                </div>
+            </div>
+
+            <!-- 工具列與切換器 -->
+            <div class="nav-actions">
+                <div class="offline-badge">
+                    <svg width="12" height="12"><use href="#icon-check"/></svg> 離線保存已啟用
+                </div>
+                <!-- 機械音切換 -->
+                <button id="toggle-sound" class="btn-icon" title="切換機械軸音效">
+                    <svg width="18" height="18" id="sound-icon"><use href="#icon-volume"/></svg>
+                </button>
+                <!-- 主題切換 -->
+                <button id="toggle-theme" class="btn-icon" title="切換深淺模式">
+                    <svg width="18" height="18" id="theme-icon"><use href="#icon-moon"/></svg>
+                </button>
+                <a href="#lessons-panel" class="btn-primary">
+                    選擇關卡
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- 即時狀態面板 -->
+        <div class="stats-row">
+            <!-- 關卡資訊 -->
+            <div class="stat-card">
+                <div class="stat-icon" style="background-color: #6366f1;">
+                    <svg width="20" height="20"><use href="#icon-academic"/></svg>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-label">當前挑戰課堂</span>
+                    <span id="stat-lesson-title" class="stat-value">F, J 基準雙煞</span>
+                </div>
+            </div>
+            
+            <!-- 即時速度 -->
+            <div class="stat-card">
+                <div class="stat-icon" style="background-color: #10b981;">
+                    <svg width="20" height="20"><use href="#icon-gauge"/></svg>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-label">即時速度 (WPM)</span>
+                    <span id="stat-wpm" class="stat-value">0</span>
+                </div>
+            </div>
+
+            <!-- 正確度 -->
+            <div class="stat-card">
+                <div class="stat-icon" style="background-color: #f59e0b;">
+                    <svg width="20" height="20"><use href="#icon-check"/></svg>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-label">指法準確率</span>
+                    <span id="stat-accuracy" class="stat-value">100%</span>
+                </div>
+            </div>
+
+            <!-- 本關進度條 -->
+            <div class="stat-card progress-container">
+                <div style="display:flex; justify-content:space-between; width:100%; font-size:0.75rem;">
+                    <span style="color:var(--text-muted); font-weight:500;">本課進度</span>
+                    <span id="stat-progress-text" style="color:var(--brand-color); font-weight:bold;">0%</span>
+                </div>
+                <div class="progress-track">
+                    <div id="stat-progress-bar" class="progress-bar"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 打字舞台 -->
+        <div class="typing-stage" id="stage-wrapper">
+            <!-- 右上角工具 -->
+            <div class="stage-header">
+                <span class="badge" id="mode-badge">QWERTY 專業英文模式</span>
+                <button id="btn-restart-lesson" class="btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.75rem;">
+                    <svg width="12" height="12"><use href="#icon-restart"/></svg> 重來
+                </button>
+            </div>
+            
+            <!-- 核心字母文字顯示 -->
+            <div class="typing-box" id="typing-words" tabindex="0">
+                <!-- 透過 JavaScript 動態載入字元 -->
+            </div>
+
+            <!-- 請點擊啟動的覆蓋層 (防止焦點偏移而打不了字) -->
+            <div id="focus-alert" class="focus-overlay">
+                <div class="focus-card">
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">⌨️</div>
+                    <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: 0.25rem;">點擊此處「啟動」鍵盤打字</h3>
+                    <p style="font-size: 0.75rem; color: var(--text-muted);">系統已進入等待，一鍵專注，不用低頭看鍵盤！</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 指導板 grid (左手/右手，與虛擬鍵盤) -->
+        <div class="guide-grid">
+            <!-- 左右手動態高亮 (edclub 靈魂) -->
+            <div class="hands-panel">
+                <h3 class="hands-title">
+                    <svg width="14" height="14"><use href="#icon-academic"/></svg> 盲打指法動態引導
+                </h3>
+                
+                <div class="hands-svg-container">
+                    <!-- 左手 SVG -->
+                    <div style="text-align:center;">
+                        <svg class="hand-svg" viewBox="0 0 100 100">
+                            <!-- 掌心 -->
+                            <path d="M5 50 C 5 75, 15 85, 45 85 C 45 80, 48 55, 42 50 Z" fill="currentColor" stroke="var(--border-color)" stroke-width="1.5" />
+                            <path d="M50 85 C50 90, 20 90, 20 70 C20 55, 30 50, 35 50" fill="none" stroke="var(--border-color)" stroke-width="1.5" />
+                            <!-- 拇指 Left Thumb (LT) -->
+                            <circle id="finger-LT" cx="50" cy="55" r="5" fill="currentColor" opacity="0.3"/>
+                            <!-- 食指 Left Index (LI) -->
+                            <rect id="finger-LI" x="38" y="15" width="8" height="35" rx="4" fill="currentColor" opacity="0.3"/>
+                            <!-- 中指 Left Middle (LM) -->
+                            <rect id="finger-LM" x="27" y="10" width="8" height="38" rx="4" fill="currentColor" opacity="0.3"/>
+                            <!-- 無名指 Left Ring (LR) -->
+                            <rect id="finger-LR" x="16" y="14" width="8" height="35" rx="4" fill="currentColor" opacity="0.3"/>
+                            <!-- 小指 Left Pinky (LP) -->
+                            <rect id="finger-LP" x="5" y="24" width="8" height="28" rx="4" fill="currentColor" opacity="0.3"/>
+                        </svg>
+                        <div style="font-size:0.7rem; font-weight:bold; color:var(--text-muted); margin-top:0.4rem;">左手</div>
+                    </div>
+
+                    <!-- 右手 SVG -->
+                    <div style="text-align:center;">
+                        <svg class="hand-svg" viewBox="0 0 100 100">
+                            <!-- 掌心 -->
+                            <path d="M95 50 C 95 75, 85 85, 55 85 C 55 80, 52 55, 58 50 Z" fill="currentColor" stroke="var(--border-color)" stroke-width="1.5" />
+                            <path d="M50 85 C50 90, 80 90, 80 70 C80 55, 70 50, 65 50" fill="none" stroke="var(--border-color)" stroke-width="1.5" />
+                            <!-- 拇指 Right Thumb (RT) -->
+                            <circle id="finger-RT" cx="50" cy="55" r="5" fill="currentColor" opacity="0.3"/>
+                            <!-- 食指 Right Index (RI) -->
+                            <rect id="finger-RI" x="54" y="15" width="8" height="35" rx="4" fill="currentColor" opacity="0.3"/>
+                            <!-- 中指 Right Middle (RM) -->
+                            <rect id="finger-RM" x="65" y="10" width="8" height="38" rx="4" fill="currentColor" opacity="0.3"/>
+                            <!-- 無名指 Right Ring (RR) -->
+                            <rect id="finger-RR" x="76" y="14" width="8" height="35" rx="4" fill="currentColor" opacity="0.3"/>
+                            <!-- 小指 Right Pinky (RP) -->
+                            <rect id="finger-RP" x="87" y="24" width="8" height="28" rx="4" fill="currentColor" opacity="0.3"/>
+                        </svg>
+                        <div style="font-size:0.7rem; font-weight:bold; color:var(--text-muted); margin-top:0.4rem;">右手</div>
+                    </div>
+                </div>
+                <div style="font-size:0.7rem; color:var(--text-muted); margin-top:1rem; text-align:center; background-color: var(--bg-key); padding:0.4rem; border-radius:0.5rem; width:100%;">
+                    看著畫面，運用高亮藍色手指進行按壓！
+                </div>
+            </div>
+
+            <!-- 虛擬互動鍵盤 -->
+            <div class="keyboard-panel">
+                <div class="keyboard-container" id="keyboard-stage">
+                    <!-- JavaScript 將在載入時動態鋪設鍵盤 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 關卡地圖面板 -->
+        <section class="lessons-section" id="lessons-panel">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <svg width="22" height="22" style="color:var(--brand-color);"><use href="#icon-academic"/></svg>
+                    25 關漸進式盲打特訓地圖
+                </h2>
+                <span style="font-size:0.75rem; color:var(--text-muted);">循序漸進解鎖：由 2 顆鍵進化至大師境界</span>
+            </div>
+
+            <div class="lessons-grid" id="lessons-grid">
+                <!-- 25 關卡卡片由 JavaScript 自動灌入 -->
+            </div>
+        </section>
+
+        <!-- 訓練建議 -->
+        <div class="tips-panel">
+            <h3 class="tips-title">
+                🥇 肌肉記憶核心教條
+            </h3>
+            <ul class="tips-list">
+                <li><strong>絕不低頭看鍵盤：</strong> 打錯了沒關係！系統會直接往前進，您只需要保持視線專注於螢幕，依據提示手指擺動即可。</li>
+                <li><strong>定位起點 (Home Row)：</strong> 將左手食指輕觸 <strong>F</strong>，右手食指輕觸 <strong>J</strong> 上的突起定位點，其餘手指平行靠攏。</li>
+                <li><strong>這是一份離線檔案：</strong> 您隨時可以在瀏覽器點選「另存新檔」，這款精心編寫的打字機將會永久保存在您的本機中，沒有網路也能進行大師特訓。</li>
+            </ul>
+        </div>
+    </main>
+
+    <!-- 結算證書 Modal -->
+    <div id="result-modal" class="modal">
+        <div class="modal-card">
+            <div class="modal-banner"></div>
+            <div class="modal-body">
+                <div class="trophy-container">
+                    <svg width="44" height="44"><use href="#icon-trophy"/></svg>
+                </div>
+                <h3 style="font-size: 1.5rem; font-weight: 900; margin-bottom: 0.25rem;">完成課堂挑戰！</h3>
+                <p id="modal-lesson-title" style="font-size: 0.85rem; color: var(--text-muted);">F, J 基準雙煞</p>
+                
+                <!-- 評星 -->
+                <div class="stars-big" id="modal-stars">
+                    <!-- 動態評星 -->
+                </div>
+
+                <!-- 數據看板 -->
+                <div class="modal-stats">
+                    <div class="modal-stat-col">
+                        <span style="font-size:0.75rem; color:var(--text-muted); font-weight:500;">打字速度</span>
+                        <span id="modal-wpm" style="font-size:1.5rem; font-weight:900; color:var(--brand-color);">0 WPM</span>
+                    </div>
+                    <div class="modal-stat-col">
+                        <span style="font-size:0.75rem; color:var(--text-muted); font-weight:500;">關卡準確率</span>
+                        <span id="modal-accuracy" style="font-size:1.5rem; font-weight:900; color:#10b981;">100%</span>
+                    </div>
+                </div>
+
+                <div class="modal-btn-row">
+                    <button id="modal-btn-retry" class="btn-secondary">
+                        <svg width="14" height="14"><use href="#icon-restart"/></svg> 重來一次
+                    </button>
+                    <button id="modal-btn-next" class="btn-primary" style="justify-content:center;">
+                        下一關卡 <svg width="14" height="14"><use href="#icon-arrow-right"/></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 頁尾 -->
+    <footer>
+        <div>© 2026 EdTyping Pro. 仿 edclub 設計之高效率盲打特訓所。完全無廣告、無外部 CDN、安全零追蹤，支援 100% 離線執行。</div>
+    </footer>
+
+    <script>
+        // ----------------------------------------------------
+        // 1. 全新 25 關極細緻漸進式關卡資料庫 (不含注音)
+        // ----------------------------------------------------
+        const ENGLISH_COURSE = [
+            { id: "lvl-1", title: "1. 食指初探 (F, J)", keys: ['f', 'j'], text: "ff jj ff jj f j f j ff jj f f j j fj fj f j fj f j fj fj f f j j" },
+            { id: "lvl-2", title: "2. 大氣空間 (F, J, Space)", keys: ['f', 'j', ' '], text: "f j f j ff jj f j f j f j f f j j f j f j j f f j j f j f j" },
+            { id: "lvl-3", title: "3. 左中指加入 (D)", keys: ['d', 'f', 'j', ' '], text: "dd ff jj d f j df fd d j f d d f j d d f d f j f d d j f j d d" },
+            { id: "lvl-4", title: "4. 右中指加入 (K)", keys: ['d', 'f', 'j', 'k', ' '], text: "kk dd ff jj dk kd dk fj df jk dk fd jk fd df jk dk kd df jk d k" },
+            { id: "lvl-5", title: "5. 左無名指加入 (S)", keys: ['s', 'd', 'f', 'j', 'k', ' '], text: "ss dd ff ss df jk sd fd sj dk sk fj ds sf jk sd jk sd fd sj sf" },
+            { id: "lvl-6", title: "6. 右無名指加入 (L)", keys: ['s', 'd', 'f', 'j', 'k', 'l', ' '], text: "ll ss dd ff ll sl sd lk df jk sl ls dk fj sd lk sl sd lk df jk" },
+            { id: "lvl-7", title: "7. 左小指開張 (A)", keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ' '], text: "aa ss dd ff as sa ad da af fa asdf jkl as sa ad da df jk as sd" },
+            { id: "lvl-8", title: "8. 右小指開張 (;)", keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' '], text: ";; aa ss dd ff jkl; a; s; d; f; a; s; d; f; j; k; l; ; a; s; d; f;" },
+            { id: "lvl-9", title: "9. 基準排總成單字 (Home Row)", keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' '], text: "dad sad lad ask fall glass salad alfalfa flask dallas dallas dallas" },
+            { id: "lvl-10", title: "10. 上排核心 (E)", keys: ['e', 'd', 'f', 'j', 'k', ' '], text: "ee dd ff ed de ded fed de de jed de ded ded de de fed de ded" },
+            { id: "lvl-11", title: "11. 上排核心 (I)", keys: ['e', 'i', 'd', 'f', 'j', 'k', ' '], text: "ii ee dd ff ik ki kik did de ki die kid elk id de ki ik ki" },
+            { id: "lvl-12", title: "12. 上排食指 (R)", keys: ['r', 'e', 'd', 'f', 'j', 'k', ' '], text: "rr ee dd ff rf fr red fed re de err red rider rude red deer re de" },
+            { id: "lvl-13", title: "13. 上排食指 (U)", keys: ['r', 'e', 'u', 'i', 'f', 'j', 'k', ' '], text: "uu rr ee dd ju uj run rug fur use rude rider ur du ur jru rju" },
+            { id: "lvl-14", title: "14. 基準橫移擴展 (G, H)", keys: ['g', 'h', 'a', 's', 'd', 'f', 'j', 'k', 'l', ' '], text: "gg hh fg jh gh hg gas had has hug dug glad high half glass shelf" },
+            { id: "lvl-15", title: "15. 上排與橫移單字測驗", keys: ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'e', 'i', 'r', 'u', ' '], text: "the red huge house had green glass shield side rules ride high" },
+            { id: "lvl-16", title: "16. 上排食指橫移 (T, Y)", keys: ['t', 'y', 'f', 'j', 'r', 'u', ' '], text: "tt yy ft jy rt uy tf jy try toy yet tie rye rut turd tye rty" },
+            { id: "lvl-17", title: "17. 上排左外側 (Q, W)", keys: ['q', 'w', 'a', 's', 'd', 'f', ' '], text: "qq ww aq sw qas ws qa ws quiet write we are red saw was raw queue" },
+            { id: "lvl-18", title: "18. 上排右外側 (O, P)", keys: ['o', 'p', 'j', 'k', 'l', ';', ' '], text: "oo pp jo kp ol po jop lop pot pop top pour poor loop pool post" },
+            { id: "lvl-19", title: "19. 下排食指 (V, B)", keys: ['v', 'b', 'f', 'j', 'd', 'k', ' '], text: "vv bb fv jb vb bv verb vibe dove dive bed bug bad dog red box" },
+            { id: "lvl-20", title: "20. 下排食指 (N, M)", keys: ['n', 'm', 'f', 'j', ' '], text: "nn mm jn jm nm mn run man men sum name home moon mind norm move" },
+            { id: "lvl-21", title: "21. 下排外側 (Z, X, C)", keys: ['z', 'x', 'c', 'a', 's', 'd', 'f', ' '], text: "zz xx cc az sx cd zxc caz sax car cat zip axe cab cow cut cup cap" },
+            { id: "lvl-22", title: "22. 下排標點 (comma, dot, slash)", keys: [',', '.', '/', 'l', ';', 'k', ' '], text: "lk, l;. ;./ k, l. ;, ok. so, if. yes, no, up. down, far. near." },
+            { id: "lvl-23", title: "23. 大寫挑戰：左右鍵 Shift", keys: ['shift', 'a', 's', 'd', 'f', 'j', 'k', 'l', ' '], text: "Dad Sad Ask Glass Dallas Julia Kevin Alan Sarah Elsa Frank Lion" },
+            { id: "lvl-24", title: "24. 數字列挑戰 (1 to 0)", keys: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', ' '], text: "123 456 789 012 987 654 321 098 1029 3847 5620 1928 3746 4530" },
+            { id: "lvl-25", title: "25. 終極盲打畢業大會操", keys: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', ' ', 'shift', '.', ','], text: "The quick brown fox jumps over the lazy dog. You are a typing master now, congrats!" }
+        ];
+
+        // ----------------------------------------------------
+        // 2. 鍵盤配置 (虛擬按鍵渲染與對應)
+        // ----------------------------------------------------
+        const KEYBOARD_ROWS = [
+            ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', 'backspace'],
+            ['tab', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']'],
+            ['capslock', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', "'", 'enter'],
+            ['shift-l', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', 'shift-r'],
+            ['space']
+        ];
+
+        // 左右手指地圖 (LP: 左小指, LR: 左無名指, LM: 左中指, LI: 左食指, LT: 左拇指...)
+        const FINGER_MAP = {
+            '1': 'LP', 'q': 'LP', 'a': 'LP', 'z': 'LP', 'tab': 'LP', 'capslock': 'LP', 'shift-l': 'LP',
+            '2': 'LR', 'w': 'LR', 's': 'LR', 'x': 'LR',
+            '3': 'LM', 'e': 'LM', 'd': 'LM', 'c': 'LM',
+            '4': 'LI', 'r': 'LI', 'f': 'LI', 'v': 'LI',
+            '5': 'LI', 't': 'LI', 'g': 'LI', 'b': 'LI',
+            '6': 'RI', 'y': 'RI', 'h': 'RI', 'n': 'RI',
+            '7': 'RI', 'u': 'RI', 'j': 'RI', 'm': 'RI',
+            '8': 'RM', 'i': 'RM', 'k': 'RM', ',': 'RM',
+            '9': 'RR', 'o': 'RR', 'l': 'RR', '.': 'RR',
+            '0': 'RP', 'p': 'RP', ';': 'RP', '/': 'RP', '-': 'RP', 'backspace': 'RP', 'enter': 'RP', '[': 'RP', ']': 'RP', "'": 'RP', 'shift-r': 'RP',
+            ' ': 'RT' // 空白鍵預設右手或左手拇指
+        };
+
+        // ----------------------------------------------------
+        // 3. 系統核心 State 變數
+        // ----------------------------------------------------
+        let state = {
+            currentLesson: null,
+            currentIndex: 0,
+            correctCount: 0,
+            totalKeyStrokes: 0,
+            startTime: null,
+            timerInterval: null,
+            isSoundOn: true,
+            isFocused: false
+        };
+
+        let audioCtx = null;
+
+        // ----------------------------------------------------
+        // 4. 機械鍵盤音效合成系統 (完美仿真 Cherry MX 青軸 & 茶軸聲學)
+        // ----------------------------------------------------
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playMechanicalSound(keyType) {
+            if (!state.isSoundOn) return;
+            initAudio();
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            const now = audioCtx.currentTime;
+
+            if (keyType === 'space') {
+                // 空白鍵：大平衡桿、低沉塑料腔體重擊聲 (Thud)
+                // 1. 低頻重擊音
+                const oscLow = audioCtx.createOscillator();
+                const gainLow = audioCtx.createGain();
+                const filterLow = audioCtx.createBiquadFilter();
+
+                oscLow.type = 'sine';
+                oscLow.frequency.setValueAtTime(105, now);
+                oscLow.frequency.exponentialRampToValueAtTime(55, now + 0.08);
+
+                filterLow.type = 'lowpass';
+                filterLow.frequency.setValueAtTime(250, now);
+
+                gainLow.gain.setValueAtTime(0.35, now);
+                gainLow.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+
+                oscLow.connect(filterLow);
+                filterLow.connect(gainLow);
+                gainLow.connect(audioCtx.destination);
+                oscLow.start(now);
+                oscLow.stop(now + 0.1);
+
+                // 2. 平衡桿金屬細微撞擊 (Clack)
+                const oscMetal = audioCtx.createOscillator();
+                const gainMetal = audioCtx.createGain();
+                oscMetal.type = 'triangle';
+                oscMetal.frequency.setValueAtTime(900, now);
+                oscMetal.frequency.exponentialRampToValueAtTime(2500, now + 0.015);
+
+                gainMetal.gain.setValueAtTime(0.08, now);
+                gainMetal.gain.exponentialRampToValueAtTime(0.001, now + 0.02);
+
+                oscMetal.connect(gainMetal);
+                gainMetal.connect(audioCtx.destination);
+                oscMetal.start(now);
+                oscMetal.stop(now + 0.03);
+
+            } else {
+                // 普通按鍵：精緻、具有雙階段段落感與微金屬彈簧餘音 (Click-Clack)
+                // 1. 段落 Click 聲音 (超高頻高通噪聲與高頻正弦尖脈衝)
+                const oscClick = audioCtx.createOscillator();
+                const gainClick = audioCtx.createGain();
+
+                oscClick.type = 'triangle';
+                oscClick.frequency.setValueAtTime(1600, now);
+                oscClick.frequency.exponentialRampToValueAtTime(4500, now + 0.004);
+
+                gainClick.gain.setValueAtTime(0.18, now);
+                gainClick.gain.exponentialRampToValueAtTime(0.001, now + 0.008);
+
+                oscClick.connect(gainClick);
+                gainClick.connect(audioCtx.destination);
+                oscClick.start(now);
+                oscClick.stop(now + 0.01);
+
+                // 2. 鍵帽觸底腔體回聲 (Thud / Clack)
+                const oscClack = audioCtx.createOscillator();
+                const gainClack = audioCtx.createGain();
+                const filterClack = audioCtx.createBiquadFilter();
+
+                oscClack.type = 'sine';
+                oscClack.frequency.setValueAtTime(280, now);
+                oscClack.frequency.exponentialRampToValueAtTime(130, now + 0.04);
+
+                filterClack.type = 'bandpass';
+                filterClack.frequency.setValueAtTime(280, now);
+                filterClack.Q.setValueAtTime(1.5, now);
+
+                gainClack.gain.setValueAtTime(0.24, now);
+                gainClack.gain.exponentialRampToValueAtTime(0.001, now + 0.045);
+
+                oscClack.connect(filterClack);
+                filterClack.connect(gainClack);
+                gainClack.connect(audioCtx.destination);
+                oscClack.start(now);
+                oscClack.stop(now + 0.05);
+
+                // 3. 微弱的金屬彈簧音 (Spring Ring)
+                const oscSpring = audioCtx.createOscillator();
+                const gainSpring = audioCtx.createGain();
+
+                oscSpring.type = 'sine';
+                oscSpring.frequency.setValueAtTime(2100, now);
+
+                gainSpring.gain.setValueAtTime(0.006, now);
+                gainSpring.gain.exponentialRampToValueAtTime(0.0001, now + 0.06);
+
+                oscSpring.connect(gainSpring);
+                gainSpring.connect(audioCtx.destination);
+                oscSpring.start(now);
+                oscSpring.stop(now + 0.07);
+            }
+        }
+
+        // ----------------------------------------------------
+        // 5. 虛擬鍵盤渲染
+        // ----------------------------------------------------
+        function renderKeyboard() {
+            const container = document.getElementById('keyboard-stage');
+            container.innerHTML = '';
+
+            KEYBOARD_ROWS.forEach(row => {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = "keyboard-row";
+
+                row.forEach(key => {
+                    const button = document.createElement('button');
+                    button.id = `key-${key === ' ' ? 'space' : key}`;
+                    button.className = "key";
+
+                    // 定義寬度
+                    if (key === 'space') {
+                        button.className += " key-space";
+                    } else if (key === 'backspace') {
+                        button.className += " key-back";
+                        button.innerHTML = "Back";
+                    } else if (key === 'tab') {
+                        button.className += " key-tab";
+                        button.innerHTML = "Tab";
+                    } else if (key === 'capslock') {
+                        button.className += " key-caps";
+                        button.innerHTML = "Caps";
+                    } else if (key === 'enter') {
+                        button.className += " key-enter";
+                        button.innerHTML = "Enter";
+                    } else if (key === 'shift-l' || key === 'shift-r') {
+                        button.className += " key-shift-l";
+                        button.innerHTML = "Shift";
+                    } else {
+                        button.className += " key-std";
+                        button.innerText = key.toUpperCase();
+                    }
+
+                    rowDiv.appendChild(button);
+                });
+
+                container.appendChild(rowDiv);
+            });
+        }
+
+        // ----------------------------------------------------
+        // 6. 指法高亮輔助器
+        // ----------------------------------------------------
+        function highlightFinger(fingerId) {
+            // 重設所有手指顏色
+            const allFingers = ['finger-LT', 'finger-LI', 'finger-LM', 'finger-LR', 'finger-LP', 'finger-RT', 'finger-RI', 'finger-RM', 'finger-RR', 'finger-RP'];
+            allFingers.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.remove('hand-active-finger');
+            });
+
+            // 亮起指定手指
+            if (fingerId) {
+                const activeEl = document.getElementById(`finger-${fingerId}`);
+                if (activeEl) activeEl.classList.add('hand-active-finger');
+            }
+        }
+
+        function highlightTargetKey(charToPress) {
+            // 移除目前所有的鍵盤高亮
+            document.querySelectorAll('.key').forEach(el => {
+                el.classList.remove('key-target');
+            });
+
+            if (!charToPress) return;
+
+            let physicalKey = charToPress.toLowerCase();
+            let isCapital = (charToPress !== charToPress.toLowerCase()) && (charToPress.length === 1) && !("0123456789".includes(charToPress));
+
+            // 如果是大寫，額外亮起對應的 Shift 鍵
+            if (isCapital) {
+                // 如果字在鍵盤右邊，亮左邊 Shift，反之亦然
+                const rightKeys = "yuiophjkl;nm,./";
+                if (rightKeys.includes(physicalKey)) {
+                    const shiftL = document.getElementById('key-shift-l');
+                    if (shiftL) shiftL.classList.add('key-target');
+                } else {
+                    const shiftR = document.getElementById('key-shift-r');
+                    if (shiftR) shiftR.classList.add('key-target');
+                }
+            }
+
+            if (physicalKey === ' ') physicalKey = 'space';
+            // 點號、逗號等特殊字元轉義處理
+            if (charToPress === ',') physicalKey = ',';
+            if (charToPress === '.') physicalKey = '.';
+            if (charToPress === '/') fillKey = '/';
+
+            const targetBtn = document.getElementById(`key-${physicalKey}`);
+            if (targetBtn) {
+                targetBtn.classList.add('key-target');
+                const finger = FINGER_MAP[physicalKey];
+                highlightFinger(finger);
+            } else {
+                highlightFinger(null);
+            }
+        }
+
+        // ----------------------------------------------------
+        // 7. 關卡地圖渲染與 localStorage 快取系統 (純離線可用)
+        // ----------------------------------------------------
+        function loadLessonsGrid() {
+            const grid = document.getElementById('lessons-grid');
+            grid.innerHTML = '';
+
+            ENGLISH_COURSE.forEach((lesson, index) => {
+                const card = document.createElement('div');
+                card.id = `card-${lesson.id}`;
+                card.className = "lesson-card";
+                if (state.currentLesson && state.currentLesson.id === lesson.id) {
+                    card.className += " active";
+                }
+
+                card.onclick = () => selectLesson(lesson.id);
+
+                // 星星讀取
+                const savedStars = localStorage.getItem(`stars-${lesson.id}`) || 0;
+                let starsHtml = '';
+                for (let i = 1; i <= 3; i++) {
+                    starsHtml += `
+                        <svg class="star-svg ${i <= savedStars ? 'filled' : ''}" viewBox="0 0 24 24">
+                            <use href="#icon-star"/>
+                        </svg>
+                    `;
+                }
+
+                card.innerHTML = `
+                    <div class="lesson-num">LEVEL ${index + 1}</div>
+                    <div class="lesson-info">
+                        <h4 class="lesson-title">${lesson.title}</h4>
+                        <p class="lesson-desc">訓練指位：${lesson.keys.filter(k => k !== ' ').join(', ').toUpperCase()}</p>
+                    </div>
+                    <div class="lesson-footer">
+                        <div class="stars-row">${starsHtml}</div>
+                        <span style="font-weight: bold; color: var(--brand-color);">開始</span>
+                    </div>
+                `;
+
+                grid.appendChild(card);
+            });
+        }
+
+        // ----------------------------------------------------
+        // 8. 課堂初始化與選擇
+        // ----------------------------------------------------
+        function selectLesson(lessonId) {
+            const target = ENGLISH_COURSE.find(l => l.id === lessonId);
+            if (!target) return;
+
+            // 調整狀態
+            state.currentLesson = target;
+            state.currentIndex = 0;
+            state.correctCount = 0;
+            state.totalKeyStrokes = 0;
+            state.startTime = null;
+            if (state.timerInterval) clearInterval(state.timerInterval);
+
+            // 更新面板
+            document.getElementById('stat-lesson-title').innerText = target.title;
+            document.getElementById('stat-wpm').innerText = '0';
+            document.getElementById('stat-accuracy').innerText = '100%';
+            document.getElementById('stat-progress-text').innerText = '0%';
+            document.getElementById('stat-progress-bar').style.width = '0%';
+
+            // 更新地圖卡片狀態高亮
+            document.querySelectorAll('.lesson-card').forEach(el => el.classList.remove('active'));
+            const activeCard = document.getElementById(`card-${lessonId}`);
+            if (activeCard) activeCard.classList.add('active');
+
+            // 渲染打字文字區
+            const wordsContainer = document.getElementById('typing-words');
+            wordsContainer.innerHTML = '';
+
+            for (let i = 0; i < target.text.length; i++) {
+                const charSpan = document.createElement('span');
+                charSpan.innerText = target.text[i];
+                charSpan.className = "char-default";
+                if (i === 0) {
+                    charSpan.className = "char-default cursor-active";
+                }
+                wordsContainer.appendChild(charSpan);
+            }
+
+            // 高亮預期按鍵與指位
+            highlightTargetKey(target.text[0]);
+
+            // 自動將焦點引導到打字舞台
+            setTimeout(() => {
+                focusTyping();
+            }, 50);
+        }
+
+        // 焦點事件處理
+        function focusTyping() {
+            const stage = document.getElementById('typing-words');
+            stage.focus();
+            state.isFocused = true;
+            document.getElementById('focus-alert').classList.add('hidden');
+        }
+
+        function blurTyping() {
+            state.isFocused = false;
+            document.getElementById('focus-alert').classList.remove('hidden');
+        }
+
+        // ----------------------------------------------------
+        // 9. 即時打字統計 (WPM & Accuracy)
+        // ----------------------------------------------------
+        function updateStats() {
+            if (!state.startTime) return;
+
+            const elapsedMinutes = (Date.now() - state.startTime) / 60000;
+            if (elapsedMinutes <= 0) return;
+
+            // WPM 標準算法 = (正確總字元數 / 5) / 分鐘
+            const wpm = Math.round((state.correctCount / 5) / elapsedMinutes);
+            document.getElementById('stat-wpm').innerText = wpm;
+
+            // 準確率
+            const acc = state.totalKeyStrokes > 0
+                ? Math.round((state.correctCount / state.totalKeyStrokes) * 100)
+                : 100;
+            document.getElementById('stat-accuracy').innerText = `${acc}%`;
+
+            // 本關進度百分比
+            const progress = Math.round((state.currentIndex / state.currentLesson.text.length) * 100);
+            document.getElementById('stat-progress-text').innerText = `${progress}%`;
+            document.getElementById('stat-progress-bar').style.width = `${progress}%`;
+        }
+
+        // ----------------------------------------------------
+        // 10. 核心鍵盤監聽事件 (錯了就是錯了，絕不卡關，持續前進！)
+        // ----------------------------------------------------
+        function handleKeyDown(e) {
+            if (!state.isFocused) return;
+            if (!state.currentLesson) return;
+
+            // 排除系統控制功能鍵 (如 Ctrl, Alt, F5 等等)
+            if (e.key.length > 1 && e.key !== 'Spacebar' && e.key !== ' ') {
+                if (e.key === 'Backspace') {
+                    // Backspace 音效
+                    playMechanicalSound('click');
+                    e.preventDefault();
+                }
+                return;
+            }
+
+            e.preventDefault(); // 防止滾動等預設行為
+
+            // 開始計時
+            if (!state.startTime) {
+                state.startTime = Date.now();
+                state.timerInterval = setInterval(updateStats, 1000);
+            }
+
+            const targetText = state.currentLesson.text;
+            const targetChar = targetText[state.currentIndex];
+            const typedKey = e.key;
+
+            state.totalKeyStrokes++;
+
+            // 比對正誤
+            let isCorrect = (typedKey === targetChar);
+            
+            // 觸發物理機械鍵盤音效
+            if (targetChar === ' ') {
+                playMechanicalSound('space');
+            } else {
+                playMechanicalSound('click');
+            }
+
+            const charSpans = document.getElementById('typing-words').children;
+
+            if (isCorrect) {
+                charSpans[state.currentIndex].className = "correct-char";
+                state.correctCount++;
+            } else {
+                // 標記為錯誤，但游標照常前進！
+                charSpans[state.currentIndex].className = "wrong-char";
+            }
+
+            // 【核心亮點】：不論對錯，游標必定往前推進
+            state.currentIndex++;
+
+            if (state.currentIndex >= targetText.length) {
+                // 抵達終點，結算！
+                finishLesson();
+            } else {
+                // 還有下一個字，更新游標與鍵盤提示
+                charSpans[state.currentIndex].className = "char-default cursor-active";
+                highlightTargetKey(targetText[state.currentIndex]);
+            }
+
+            updateStats();
+        }
+
+        // ----------------------------------------------------
+        // 11. 關卡完成結算 (3星評比與離線 localSave)
+        // ----------------------------------------------------
+        function finishLesson() {
+            if (state.timerInterval) clearInterval(state.timerInterval);
+
+            const elapsedMinutes = (Date.now() - state.startTime) / 60000;
+            const finalWpm = Math.round((state.correctCount / 5) / elapsedMinutes) || 0;
+            const finalAcc = Math.round((state.correctCount / state.totalKeyStrokes) * 100) || 100;
+
+            // 星等計算系統
+            let stars = 1;
+            if (finalAcc >= 95 && finalWpm >= 25) {
+                stars = 3;
+            } else if (finalAcc >= 85 || finalWpm >= 15) {
+                stars = 2;
+            }
+
+            // 本地進度保存
+            const recordStars = parseInt(localStorage.getItem(`stars-${state.currentLesson.id}`)) || 0;
+            if (stars > recordStars) {
+                localStorage.setItem(`stars-${state.currentLesson.id}`, stars);
+            }
+
+            // 更新 Modal 資訊
+            document.getElementById('modal-lesson-title').innerText = state.currentLesson.title;
+            document.getElementById('modal-wpm').innerText = `${finalWpm} WPM`;
+            document.getElementById('modal-accuracy').innerText = `${finalAcc}%`;
+
+            // Modal 繪製星等
+            const starsBig = document.getElementById('modal-stars');
+            starsBig.innerHTML = '';
+            for (let i = 1; i <= 3; i++) {
+                starsBig.innerHTML += `
+                    <svg class="star-svg ${i <= stars ? 'filled' : ''}" viewBox="0 0 24 24">
+                        <use href="#icon-star"/>
+                    </svg>
+                `;
+            }
+
+            // 彈出顯示
+            document.getElementById('result-modal').classList.add('active');
+        }
+
+        // ----------------------------------------------------
+        // 12. 控制功能綁定
+        // ----------------------------------------------------
+        document.addEventListener('DOMContentLoaded', () => {
+            // 渲染介面
+            renderKeyboard();
+            loadLessonsGrid();
+            
+            // 預設讀取上次存檔或第1關
+            selectLesson('lvl-1');
+
+            // 鍵盤監聽
+            document.addEventListener('keydown', handleKeyDown);
+
+            // 點擊聚焦提示層
+            document.getElementById('focus-alert').onclick = focusTyping;
+            document.getElementById('typing-words').onblur = blurTyping;
+            document.getElementById('stage-wrapper').onclick = focusTyping;
+
+            // 關卡重新開始
+            document.getElementById('btn-restart-lesson').onclick = () => {
+                selectLesson(state.currentLesson.id);
+            };
+
+            // Modal 重新開始
+            document.getElementById('modal-btn-retry').onclick = () => {
+                document.getElementById('result-modal').classList.remove('active');
+                selectLesson(state.currentLesson.id);
+            };
+
+            // Modal 下一關卡
+            document.getElementById('modal-btn-next').onclick = () => {
+                document.getElementById('result-modal').classList.remove('active');
+                const currIdx = ENGLISH_COURSE.findIndex(l => l.id === state.currentLesson.id);
+                if (currIdx !== -1 && currIdx + 1 < ENGLISH_COURSE.length) {
+                    selectLesson(ENGLISH_COURSE[currIdx + 1].id);
+                } else {
+                    alert("🎉 恭喜您！您已經完成了全部 25 關盲打訓練，您是真正的鍵盤大師！");
+                    document.getElementById('lessons-panel').scrollIntoView({ behavior: 'smooth' });
+                }
+                loadLessonsGrid(); // 重繪地圖更新星星
+            };
+
+            // 音效切換
+            document.getElementById('toggle-sound').onclick = () => {
+                state.isSoundOn = !state.isSoundOn;
+                const soundIcon = document.getElementById('sound-icon');
+                if (state.isSoundOn) {
+                    soundIcon.innerHTML = `<use href="#icon-volume"/>`;
+                } else {
+                    soundIcon.innerHTML = `<use href="#icon-volume-mute"/>`;
+                }
+            };
+
+            // 深淺色主題切換
+            document.getElementById('toggle-theme').onclick = () => {
+                const html = document.documentElement;
+                const themeIcon = document.getElementById('theme-icon');
+                if (html.classList.contains('dark')) {
+                    html.classList.remove('dark');
+                    themeIcon.innerHTML = `<use href="#icon-sun"/>`;
+                } else {
+                    html.classList.add('dark');
+                    themeIcon.innerHTML = `<use href="#icon-moon"/>`;
+                }
+            };
+        });
+    </script>
+</body>
+</html>

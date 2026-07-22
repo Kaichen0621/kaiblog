@@ -1,0 +1,289 @@
+/* ============================================================
+1. 字體與基礎變數 (Typography & Variables)
+============================================================ */
+@import url('https://fonts.googleapis.com');
+
+:root {
+  --ifm-font-weight-base: 500;
+  --ifm-font-weight-bold: 900;
+  --ifm-heading-font-weight: 900;
+  --ifm-code-font-size: 95%;
+
+  --ifm-color-primary: #429eee;
+  --ifm-color-primary-dark: #2f84d6;
+  --ifm-color-primary-light: #5aabf2;
+  --docusaurus-highlighted-code-line-bg: rgba(66, 158, 238, 0.12);
+
+  /* 懸浮導覽列變數 */
+  --navbar-float-offset: 12px;
+  --navbar-glass-radius: 18px;
+  --mobile-bar-height: 64px;
+}
+
+html[data-theme='dark'] {
+  --ifm-color-primary: #6bb4f4;
+  --docusaurus-highlighted-code-line-bg: rgba(107, 180, 244, 0.28);
+}
+
+body {
+  font-family: 'Huninn', sans-serif;
+}
+
+button,
+a {
+  box-shadow: none !important;
+}
+
+/* ============================================================
+2. ✨ Netflix 風格：互動懸停效果
+============================================================ */
+.navbar__item,
+.menu__link,
+.dropdown__link,
+.pagination-nav__link,
+a.link {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 8px;
+  padding: 6px 12px;
+
+}
+
+.navbar__item:hover,
+.menu__link:hover,
+.dropdown__link:hover,
+a.link:hover {
+  background-color: rgba(66, 158, 238, 0.15) !important;
+  color: var(--ifm-color-primary) !important;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* ============================================================
+3. 頂部導覽列 (Desktop Navigation - Floating Glass)
+============================================================ */
+.navbar--fixed-top {
+  top: var(--navbar-float-offset) !important;
+  left: var(--navbar-float-offset) !important;
+  right: var(--navbar-float-offset) !important;
+  width: auto !important;
+  border-radius: var(--navbar-glass-radius);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 0.6rem 1.2rem;
+
+  /* 液態玻璃核心 */
+  background: rgba(255, 255, 255, 0.7) !important;
+  backdrop-filter: blur(12px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08) !important;
+  z-index: var(--ifm-z-index-fixed);
+}
+
+html[data-theme='dark'] .navbar--fixed-top {
+  background: rgba(20, 20, 22, 0.65) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* ============================================================
+4. 🔥 手機版：液態玻璃側邊欄 (終極修復版)
+============================================================ */
+@media (max-width: 996px) {
+
+  /* 1. 徹底清空 Docusaurus 預設的背景色疊加 */
+  .navbar-sidebar,
+  .navbar-sidebar__brand,
+  .navbar-sidebar__items,
+  .navbar-sidebar__content,
+  .menu,
+  .menu__list {
+    background: transparent !important;
+    background-color: transparent !important;
+  }
+
+  /* 2. 側邊欄主體：液態玻璃容器 */
+  .navbar-sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    width: 85vw !important;
+    height: 100vh !important;
+    border-radius: 0 28px 28px 0 !important;
+    margin: 0 !important;
+
+    /* 強力毛玻璃效果 */
+    backdrop-filter: blur(30px) saturate(180%) brightness(1.05) !important;
+    -webkit-backdrop-filter: blur(30px) saturate(200%) brightness(1.05) !important;
+
+    /* 亮色模式玻璃底色 */
+    background: rgba(255, 255, 255, 1) !important;
+    border-right: 1.5px solid rgba(255, 255, 255, 1) !important;
+    box-shadow: 15px 0 50px rgba(0, 0, 0, 0.1) !important;
+
+    transform: translateX(-100%);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    z-index: 2100 !important;
+    overflow: hidden;
+  }
+
+  /* 深色模式下的玻璃底色 */
+  [data-theme='dark'] .navbar-sidebar {
+    background: rgba(15, 15, 18, 1) !important;
+    border-right: 1.5px solid rgba(255, 255, 255, 0) !important;
+    box-shadow: 15px 0 50px rgba(0, 0, 0, 0.5) !important;
+  }
+
+  /* 當側邊欄顯示時 */
+  .navbar-sidebar--show .navbar-sidebar {
+    transform: translateX(0);
+  }
+
+  /* 背景遮罩 (Backdrop) */
+  .navbar-sidebar__backdrop {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background: rgba(0, 0, 0, 0.3) !important;
+    backdrop-filter: blur(4px) !important;
+    -webkit-backdrop-filter: blur(4px) !important;
+    z-index: 20 !important;
+  }
+
+  /* 側邊欄頂部 Logo 區加一條細分線 */
+  .navbar-sidebar__brand {
+    border-bottom: 1px solid rgba(128, 128, 128, 0.1);
+    padding: 1rem 1.5rem;
+  }
+
+  /* 側邊欄選單優化 */
+  .navbar-sidebar .menu__link {
+    margin: 6px 12px;
+    font-weight: 600;
+  }
+
+  .navbar-sidebar .menu__link--active {
+    background: var(--ifm-color-primary) !important;
+    color: #fff !important;
+    box-shadow: 0 4px 15px rgba(66, 158, 238, 0.3);
+  }
+
+  /* 側邊欄開啟時，隱藏浮動的頂部導覽列以維持美觀 */
+  html[class*='navbar-sidebar--show'] .navbar--fixed-top {
+    opacity: 0 !important;
+    pointer-events: none;
+    transform: translateY(-10px);
+  }
+}
+
+/* ============================================================
+5. 文字樣式與標題 (Typography & Headings)
+============================================================ */
+.hero-title,
+.blue-title,
+.blue-stroke-text {
+  color: var(--ifm-color-primary);
+  letter-spacing: 0.5px;
+}
+
+.hero-title {
+  font-weight: 800;
+}
+
+.blue-title,
+.gray {
+  font-weight: 1000;
+}
+
+.blue-stroke-text,
+.red-stroke-text {
+  font-weight: 700;
+  margin-left: 0.2rem;
+}
+
+.red-stroke-text {
+  color: red;
+}
+
+.gray {
+  color: #726f6f;
+}
+
+html[data-theme='dark'] .gray {
+  color: #949597;
+}
+
+main> :is(h3, strong) {
+  display: block;
+  font-size: 2.1rem;
+  margin: 3rem 0 1rem;
+  padding-left: 1rem;
+  border-left: 6px solid var(--ifm-color-primary);
+}
+
+main ul:not(.breadcrumbs) {
+  margin: 0 0 2rem;
+  padding-left: 2rem;
+}
+
+main ul:not(.breadcrumbs) li {
+  margin-bottom: 0.8rem;
+}
+
+/* ============================================================
+6. 元件與多媒體 (Components & Media)
+============================================================ */
+.youtube,
+.youtube-s {
+  max-width: 960px;
+  margin: 2rem 0;
+  padding: 1.2rem;
+  background: #def5ff;
+  border-radius: 14px;
+}
+
+[data-theme='dark'] :is(.youtube, .youtube-s, .photo-border img) {
+  background: #2a3b43;
+}
+
+.photo-border img {
+  margin: 2rem 0;
+  padding: 1.2rem;
+  background: #def5ff;
+  border-radius: 14px;
+}
+
+.youtube iframe,
+.youtube-s iframe {
+  width: 100%;
+  aspect-ratio: 16/9;
+  border-radius: 10px;
+  border: 0;
+}
+
+.youtube p,
+.youtube-s p,
+.photo-border p {
+  margin-top: .4rem;
+  font-size: 0.95rem;
+  color: #949597;
+}
+
+.path-box,
+.path-box-tab {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  font-family: monospace;
+  color: #334155;
+  margin: 0.5rem 0 1rem;
+}
+
+html[data-theme='dark'] :is(.path-box, .path-box-tab) {
+  background: #020617;
+  border-color: #1e293b;
+  color: #e5e7eb;
+}

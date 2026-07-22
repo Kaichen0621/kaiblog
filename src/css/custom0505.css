@@ -1,0 +1,363 @@
+/* ============================================================
+1. Variables & Global Styles
+============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap');
+
+:root {
+  --ifm-font-weight-base: 500;
+  --ifm-font-weight-bold: 700;
+  --ifm-heading-font-weight: 800;
+  --ifm-code-font-size: 90%;
+
+  /* User Primary Color */
+  --ifm-color-primary: #429EEE;
+  --ifm-color-primary-dark: #3786ca;
+  --ifm-color-primary-light: #5baef2;
+
+  --hero-gradient: #429EEE;
+  --glass-bg: #f8fafc;
+  --glass-border: #e2e8f0;
+  --card-shadow: none;
+  --card-hover-shadow: none;
+
+  /* Progress Bar Config */
+  --progress-color: #429EEE;
+  --progress-color-alt: #0051ff;
+  --progress-gradient-toggle: 1;
+  /* 【開關】1: 開啟漸層, 0: 純色 */
+}
+
+html[data-theme='dark'] {
+  --ifm-color-primary: #6bb4f4;
+  --hero-gradient: #1e293b;
+  --glass-bg: #1e293b;
+  --glass-border: #334155;
+  --card-shadow: none;
+  --card-hover-shadow: none;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.menu__link,
+.dropdown__link,
+a.link {
+  transition: 0.2s;
+  border-radius: 6px;
+}
+
+.menu__link:hover,
+.dropdown__link:hover,
+a.link:hover {
+  background: rgba(66, 158, 238, 0.1);
+  color: var(--ifm-color-primary);
+}
+
+/* ============================================================
+2. Components
+============================================================ */
+.youtube,
+.youtube-s {
+  max-width: 960px;
+  margin: 2rem auto;
+  padding: 1.2rem;
+  background: #def5ff;
+  border-radius: 14px;
+}
+
+[data-theme='dark'] .youtube,
+[data-theme='dark'] .youtube-s {
+  background: #2a3b43;
+}
+
+.youtube iframe,
+.youtube-s iframe {
+  width: 100%;
+  aspect-ratio: 16/9;
+  border-radius: 10px;
+  border: 0;
+}
+
+
+
+/* ============================================================
+4. Blog Post Images
+============================================================ */
+.blog-cover {
+  width: 100%;
+  border-radius: 12px;
+  box-shadow: none;
+  margin: 1.5rem 0 2rem;
+  display: block;
+  transition: transform 0.35s cubic-bezier(0.2, 1, 0.3, 1);
+  border: 1px solid var(--glass-border);
+}
+
+.blog-cover:hover {
+  transform: translateY(-4px);
+  box-shadow: none;
+}
+
+[data-theme='dark'] .blog-cover {
+  box-shadow: none;
+  border-color: var(--glass-border);
+}
+
+/* ============================================================
+5. Responsive
+============================================================ */
+
+
+[data-theme='dark'] .photo-border,
+[data-theme='dark'] img.photo-border {
+  background: #2a3b43;
+}
+
+/* 圖片外框容器 */
+.photo-border {
+  display: block;
+  margin: 2rem auto;
+  padding: 1rem;
+  background: #def5ff;
+  border-radius: 16px;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* 圖片本體樣式設定 */
+img.photo-border,
+.photo-border img {
+  display: block;
+  width: 100% !important;
+  /* 電腦端填滿寬度 */
+  height: 400px !important;
+  /* 固定高度，避免滑太久 */
+  object-fit: cover;
+  /* 核心：圖片會填滿空間且不變形（會稍微裁切邊緣，像封面照） */
+  margin: 0 auto;
+  border-radius: 8px;
+  transition: transform 0.3s ease;
+}
+
+/* 手機端專用調整：產生「縮小」的美感並減少垂直空間 */
+@media (max-width: 768px) {
+  .photo-border {
+    padding: 0.8rem;
+    margin: 1.5rem auto;
+  }
+
+  img.photo-border,
+  .photo-border img {
+    width: 85% !important;
+    /* 手機端寬度縮小，左右留白較多 */
+    height: 180px !important;
+    /* 手機端高度大幅減少，完全不用滑 */
+    border-radius: 6px;
+  }
+}
+
+.photo-border p {
+  margin-top: .6rem;
+  font-size: 0.9rem;
+  color: #949597;
+  text-align: center;
+}
+
+/* ============================================================
+6. Paywall TOC Hiding
+============================================================ */
+/* Hide the label entry '🔐 付費解鎖！' from TOC completely */
+[class*="tableOfContents"] [href*="%E4%BB%98%E8%B2%BB%E8%A7%A3%E9%8E%96"],
+[class*="tableOfContents"] [href*="付費解鎖"] {
+  display: none !important;
+}
+
+/* Hide parent li of the label if exists */
+[class*="tableOfContents"] li:has([href*="付費解鎖"]),
+[class*="tableOfContents"] li:has([href*="%E4%BB%98%E8%B2%BB%E8%A7%A3%E9%8E%96"]) {
+  display: none !important;
+}
+
+/* Automatically hide all items following the paywall when content is locked */
+html.lock-paid-content [class*="tableOfContents"] li:has([href*="付費解鎖"])~li,
+html.lock-paid-content [class*="tableOfContents"] li:has([href*="%E4%BB%98%E8%B2%BB%E8%A7%A3%E9%8E%96"])~li {
+  display: none !important;
+}
+
+/* Fallback for older themes with flat lists */
+html.lock-paid-content [class*="tableOfContents"] [href*="付費解鎖"]~a,
+html.lock-paid-content [class*="tableOfContents"] [href*="%E4%BB%98%E8%B2%BB%E8%A7%A3%E9%8E%96"]~a {
+  display: none !important;
+}
+
+/* ============================================================
+7. Custom Buttons
+============================================================ */
+.custom-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 24px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: white !important;
+  background: var(--ifm-color-primary);
+  border-radius: 8px;
+  text-decoration: none !important;
+  transition: all 0.2s ease;
+  box-shadow: none;
+  border: none;
+  cursor: pointer;
+  margin: 0.5rem 0;
+}
+
+.custom-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: none;
+  color: white !important;
+  opacity: 0.9;
+}
+
+.custom-btn:active {
+  transform: translateY(0);
+}
+
+[data-theme='dark'] .custom-btn {
+  background: var(--ifm-color-primary);
+  box-shadow: none;
+}
+
+[data-theme='dark'] .custom-btn:hover {
+  box-shadow: none;
+}
+
+/* ============================================================
+8. Progress Section
+============================================================ */
+.progress-container {
+  background: #f1f9ff;
+  border: 1px solid #d0e8ff;
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin: 2rem 0;
+  transition: all 0.3s ease;
+}
+
+.progress-container:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(66, 158, 238, 0.1);
+}
+
+
+[data-theme='dark'] .progress-container {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.2rem;
+}
+
+.progress-title {
+  font-weight: 800;
+  font-size: 1.1rem;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.progress-percentage {
+  font-weight: 900;
+  color: var(--progress-color);
+  font-size: 1.2rem;
+}
+
+.progress-bar-bg {
+  background: rgba(0, 0, 0, 0.05);
+  height: 10px;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+[data-theme='dark'] .progress-bar-bg {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.progress-bar-fill {
+  background-color: var(--progress-color);
+  height: 100%;
+  border-radius: 5px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 自動漸層疊加層 */
+.progress-bar-fill::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  /* 這裡自動產生比底色深/淺的質感 */
+  background: linear-gradient(to right,
+      rgba(255, 255, 255, 0.15),
+      rgba(0, 0, 0, 0.1));
+  /* 根據開關決定是否顯示 */
+  opacity: var(--progress-gradient-toggle);
+  pointer-events: none;
+}
+
+.progress-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.progress-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.progress-item.done {
+  opacity: 0.6;
+  text-decoration: line-through;
+}
+
+/* ============================================================
+8. 舊版更新
+============================================================ */
+/* Hide the label entry '⚠️ 已停止開放下載！' from TOC completely */
+[class*="tableOfContents"] [href*="%E4%BB%98%E8%B2%BB%E8%A7%A3%E9%8E%96"],
+[class*="tableOfContents"] [href*="停止開放下載！"] {
+  display: none !important;
+}
+
+/* Hide parent li of the label if exists */
+[class*="tableOfContents"] li:has([href*="停止開放下載！"]),
+[class*="tableOfContents"] li:has([href*="%E4%BB%98%E8%B2%BB%E8%A7%A3%E9%8E%96"]) {
+  display: none !important;
+}
+
+/* Automatically hide all items following the paywall when content is locked */
+html.lock-paid-content01 [class*="tableOfContents"] li:has([href*="停止開放下載！"])~li,
+html.lock-paid-content01 [class*="tableOfContents"] li:has([href*="%E4%BB%98%E8%B2%BB%E8%A7%A3%E9%8E%96"])~li {
+  display: none !important;
+}
+
+/* Fallback for older themes with flat lists */
+html.lock-paid-content01 [class*="tableOfContents"] [href*="停止開放下載！"]~a,
+html.lock-paid-content01 [class*="tableOfContents"] [href*="%E4%BB%98%E8%B2%BB%E8%A7%A3%E9%8E%96"]~a {
+  display: none !important;
+}
