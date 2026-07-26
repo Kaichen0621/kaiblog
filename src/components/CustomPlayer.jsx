@@ -46,7 +46,7 @@ export default function CustomPlayer({ videoId }) {
           disablekb: 1,
           showinfo: 0,
           fs: 0,
-          autoplay: 1,
+          autoplay: 0, // 👈 已關閉自動播放！
         },
         events: {
           onReady: (e) => setDuration(formatTime(e.target.getDuration())),
@@ -139,12 +139,11 @@ export default function CustomPlayer({ videoId }) {
         width: '100%',
         position: 'relative',
         background: '#000',
-        borderRadius: isFullscreen ? '0' : '12px',
+        borderRadius: isFullscreen ? '0' : '10px',
         overflow: 'hidden',
-        boxShadow: '0 12px 40px rgba(0,0,0,0.2)',
+        boxShadow: '0 8px 30px rgba(0,0,0,0.15)',
       }}
     >
-      {/* 強制壓制 YouTube API 注入的預設寬高 */}
       <style>{`
         .edclub-frame-wrapper iframe,
         .edclub-frame-wrapper div {
@@ -156,7 +155,6 @@ export default function CustomPlayer({ videoId }) {
         }
       `}</style>
 
-      {/* 滿版 16:9 畫面 */}
       <div
         className="edclub-frame-wrapper"
         style={{
@@ -173,16 +171,15 @@ export default function CustomPlayer({ videoId }) {
         />
       </div>
 
-      {/* EdClub 極簡滿寬控制列 */}
       <div
         style={{
           width: '100%',
-          height: '48px',
+          height: '46px',
           background: '#2b2c30',
           display: 'flex',
           alignItems: 'center',
-          padding: '0 20px',
-          gap: '16px',
+          padding: '0 16px',
+          gap: '14px',
           color: '#e2e8f0',
           userSelect: 'none',
           boxSizing: 'border-box',
@@ -224,7 +221,7 @@ export default function CustomPlayer({ videoId }) {
             max="100"
             value={isMuted ? 0 : volume}
             onChange={handleVolume}
-            style={{ width: '65px', accentColor: '#cbd5e1', cursor: 'pointer' }}
+            style={{ width: '60px', accentColor: '#cbd5e1', cursor: 'pointer' }}
           />
         </div>
 
@@ -250,7 +247,7 @@ export default function CustomPlayer({ videoId }) {
           />
         </div>
 
-        <span style={{ fontSize: '0.82rem', color: '#cbd5e1', fontFamily: 'monospace' }}>
+        <span style={{ fontSize: '0.8rem', color: '#cbd5e1', fontFamily: 'monospace' }}>
           {currentTime} / {duration}
         </span>
 

@@ -3,7 +3,7 @@ import Layout from '@theme/Layout';
 import CustomPlayer from '@site/src/components/CustomPlayer';
 
 const CHANNEL_ID = 'UCO46ZMleJZsNyZnpKYVYWLw';
-const CACHE_KEY = 'kai_youtube_full_videos_cache_v11';
+const CACHE_KEY = 'kai_youtube_full_videos_cache_v12';
 
 export default function VideosPage() {
   const [videos, setVideos] = useState([]);
@@ -33,6 +33,7 @@ export default function VideosPage() {
   const fetchAllVideos = async () => {
     let hasData = false;
 
+    // 1. 優先從本機快取渲染（達到線上秒開效果）
     if (typeof window !== 'undefined') {
       try {
         const cached = localStorage.getItem(CACHE_KEY);
@@ -50,28 +51,33 @@ export default function VideosPage() {
 
     if (!hasData) setLoading(true);
 
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 2500);
-
     const rssUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${CHANNEL_ID}`;
+    
+    // 調整代理順序，優先使用限制較少的代理伺服器
     const fetchEndpoints = [
-      `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(rssUrl)}`,
-      `https://corsproxy.io/?${encodeURIComponent(rssUrl)}`,
       `https://api.allorigins.win/raw?url=${encodeURIComponent(rssUrl)}`,
+      `https://corsproxy.io/?${encodeURIComponent(rssUrl)}`,
+      `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(rssUrl)}`,
     ];
 
     const fetchSingle = async (url) => {
-      const res = await fetch(url, { signal: controller.signal });
-      if (!res.ok) throw new Error('Network error');
-      const text = await res.text();
-      if (!text.includes('<entry') && !text.includes('<feed')) throw new Error('Invalid feed');
-      return text;
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), 4000); // 4秒超時
+      try {
+        const res = await fetch(url, { signal: controller.signal });
+        clearTimeout(id);
+        if (!res.ok) throw new Error('Network response bad');
+        const text = await res.text();
+        if (!text.includes('<entry') && !text.includes('<feed')) throw new Error('Invalid feed content');
+        return text;
+      } catch (e) {
+        clearTimeout(id);
+        throw e;
+      }
     };
 
     try {
       const xmlText = await Promise.any(fetchEndpoints.map(fetchSingle));
-      clearTimeout(timeoutId);
-
       const parser = new DOMParser();
       const xml = parser.parseFromString(xmlText, 'text/xml');
       const entries = Array.from(xml.querySelectorAll('entry'));
@@ -101,7 +107,7 @@ export default function VideosPage() {
         } catch (e) {}
       }
     } catch (err) {
-      console.warn('Fetch error:', err);
+      console.warn('Network fetch failed, using cached list if available.', err);
     } finally {
       setLoading(false);
     }
@@ -260,8 +266,6 @@ export default function VideosPage() {
                       <h3 style={{ margin: '0 0 10px 0', fontSize: '0.9rem', lineHeight: '1.4', height: '2.8em', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
                         {vid.title}
                       </h3>
-                      
-                      {/* 底部卡片列：僅保留發布日期 */}
                       <div style={{ fontSize: '0.78rem', opacity: 0.7 }}>
                         <span>📅 {vid.date}</span>
                       </div>
