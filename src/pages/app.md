@@ -9,8 +9,8 @@ tags: []
 
 # 📱 KAI macOS 電腦裡有什麼 `/app`
 
-- 最後更新：2026-07-20 16:50
-- **總共 `45` 個 軟體**
+- 最後更新：2026-07-26 16:50
+- **總共 `46` 個 軟體**
 
 ## 這是我在 Mac 上的軟體清單
 - Addictive Drums 2 Demo : 好用鼓音源，五月天用
@@ -25,6 +25,7 @@ tags: []
 - DaVinci Resolve 21 : 找不到比他更好的調色與剪輯軟體了   
 > 超級耗電的剪輯軟體，21 終於出來了
 - Discord : 聊天與語音頻道首選
+- Final Cut Pro : 剪輯簡單的影片會用它，達芬奇要開很久
 > 想不到用它來跟朋友一起看柯南，居然不會有延遲   
 - Finale 27 : 停止提供更新了，但我依然習慣它
 > 最近跳過去 `musescore`了   
@@ -52,7 +53,6 @@ tags: []
 > 還是比較喜歡 `Keynote`
 - Microsoft Word : 業界標準文書軟體   
 > 最近要開始學習了，因為需要用這個學習歷程
-- Mocha AE : AE 的平面追蹤工具 (`After Effects` 附贈，想刪除)
 - Motrix : 免費速度快得下載器
 - Musescore 4 : 開源打譜軟體
 > 還是不會用他的排版工具 
@@ -69,9 +69,9 @@ tags: []
 - Parallels Desktop : Windows 虛擬機，效能強大   
 > 最近想安裝 `macOS 27 beta` 檔案都下載好了，結果根本在 PD 上面打不開
 - Pearcleaner : 乾淨卸載 App 的利器，[教學看這裡](/docs/macAPPS/pearcleaner)
-- Raycast : 至少比 Spolight 好用
+- Raycast Beta : 至少比 Spolight 好用，V2.0 超級好用
 - Roblox : 我唯一玩的遊戲    
-- ShotCut : 剪輯簡單影片很快速
 - Steinberg Library Manager : 管理 VST 音色庫路徑與授權的工具   
 - Vibe : 語音轉文字用 Whisper 開源挺方便的
+- Vovious : 調音準很方便，媲美 Melodyne
 - VSCodium : 還是開源的文字編輯器好用
