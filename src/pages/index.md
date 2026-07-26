@@ -66,6 +66,13 @@ BlogBlog.Club 是 `WIWI` 的最新專案，他希望大家一起來寫部落格�
 <p style={{ textAlign: 'center', padding: '0 1rem', opacity: 0.7, margin: '1rem 0 0' }}>KAI丨我在 ROBLOX 刀刃球開啟了跳舞模式？</p>
 
 </div>
+import CustomPlayer from '@site/src/components/CustomPlayer';
+
+# 最新影片？
+
+KAI丨我在 ROBLOX 刀刃球開啟了跳舞模式？
+
+<CustomPlayer videoId="Ih9FuiLO71Y" />
 
 ## 其他
 
