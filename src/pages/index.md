@@ -58,12 +58,12 @@ BlogBlog.Club 是 `WIWI` 的最新專案，他希望大家一起來寫部落格�
 
 ## 📺 YouTube 最新影片 🎉
 
-> **KAI STUDIO** (最後更新：2026-04-30)
+> **KAI STUDIO** (最後更新：2026-07-27)     
+訂閱人數：30
 
 <div className="youtube-s">
-import CustomPlayer from '@site/src/components/CustomPlayer';
+<iframe width="560" height="315" src="https://www.youtube.com/embed/Ih9FuiLO71Y?si=vO3AcsppPhShcfY0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
-<CustomPlayer videoId="Ih9FuiLO71Y" />
 <p style={{ textAlign: 'center', padding: '0 1rem', opacity: 0.7, margin: '1rem 0 0' }}>KAI丨我在 ROBLOX 刀刃球開啟了跳舞模式？</p>
 
 </div>

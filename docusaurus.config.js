@@ -143,7 +143,7 @@ const config = {
           { to: '/blog/archive', label: '🗄️ 列表', position: 'left' },
           { to: '/random', label: '🎲 隨機', position: 'left' },
           { to: '/docs', label: '📚 筆記', position: 'left' },
-          { to: '/videos', label: '🎬 影音 (Beta)', position: 'left' },
+         // { to: '/videos', label: '🎬 影音 (Beta)', position: 'left' },
           //{ to: '/mayday-sim', label: '🎫 搶票練習', position: 'left' },
           { to: '/app', label: '📱 應用程式', position: 'left' },
           { to: '/email', label: '📩 聯絡我', position: 'left' },
