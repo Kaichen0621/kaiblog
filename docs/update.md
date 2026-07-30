@@ -4,6 +4,8 @@ slug: /update
 ---
 
 # ⬆︎ 更新紀錄 `/update`
+## #12 2026-07-30
+更換網頁顯示字體：Chiron GoRound TC
 ## #11 2026-07-14
 Pages 獨立頁面不推薦使用：
 #### <a href="/train.html">🚝 超爛別用時可比公句</a>

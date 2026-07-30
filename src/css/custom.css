@@ -1,12 +1,17 @@
 /* ============================================================
 1. Variables & Global Styles
 ============================================================ */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap');
+/* 引入 Chiron GoRound TC */
+@import url('https://fonts.googleapis.com/css2?family=Chiron+GoRound+TC:wght@400;700&display=swap');
 
 :root {
-  --ifm-font-weight-base: 500;
+  /* 1. 設定全站字體 */
+  --ifm-font-family-base: 'Chiron GoRound TC', -apple-system, sans-serif;
+  
+  /* 2. 字重設定：常規 400，粗體與標題 700 */
+  --ifm-font-weight-base: 400;
   --ifm-font-weight-bold: 700;
-  --ifm-heading-font-weight: 800;
+  --ifm-heading-font-weight: 700;
   --ifm-code-font-size: 90%;
 
   /* User Primary Color */
@@ -24,7 +29,6 @@
   --progress-color: #429EEE;
   --progress-color-alt: #0051ff;
   --progress-gradient-toggle: 1;
-  /* 【開關】1: 開啟漸層, 0: 純色 */
 }
 
 html[data-theme='dark'] {
@@ -36,10 +40,18 @@ html[data-theme='dark'] {
   --card-hover-shadow: none;
 }
 
+/* 3. 全局套用變數 */
 body {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: var(--ifm-font-family-base);
+  font-weight: var(--ifm-font-weight-base);
   -webkit-font-smoothing: antialiased;
 }
+
+/* 4. 確保粗體明確切換 */
+b, strong {
+  font-weight: 700 !important;
+}
+
 
 .menu__link,
 .dropdown__link,

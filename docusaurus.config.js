@@ -146,7 +146,7 @@ const config = {
          // { to: '/videos', label: '🎬 影音 (Beta)', position: 'left' },
           //{ to: '/mayday-sim', label: '🎫 搶票練習', position: 'left' },
           { to: '/app', label: '📱 應用程式', position: 'left' },
-          { to: '/email', label: '📩 聯絡我', position: 'left' },
+          //{ to: '/email', label: '📩 聯絡我', position: 'left' },
           { to: '/about', label: '👤 關於', position: 'left' },
           { to: '/search', label: '🔍 全站搜尋', position: 'right' },
         ],
@@ -168,7 +168,7 @@ const config = {
             title: '個人資訊',
             items: [
               { label: '關於我', to: '/about' },
-              { label: '聯絡我', to: '/email' },
+              //{ label: '聯絡我', to: '/email' },
               // { label: '愛用', to: '/use' },
               { label: 'APP', to: '/app' },
               { label: '更新紀錄', to: '/docs/update' },
