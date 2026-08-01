@@ -13,7 +13,7 @@
   <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, set, remove, onValue, get, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { getDatabase, ref, set, remove, onValue, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const firebaseConfig = { 
       databaseURL: "https://ashin-1206-default-rtdb.firebaseio.com" 
@@ -22,7 +22,7 @@
     try {
       const app = initializeApp(firebaseConfig);
       const db = getDatabase(app);
-      window.cloudDB = { db, ref, set, remove, onValue, get, runTransaction };
+      window.cloudDB = { db, ref, set, remove, onValue, get };
       console.log("✅ Firebase 連線成功");
     } catch (e) { 
       console.warn("❌ Firebase 初始化失敗", e); 
@@ -91,7 +91,7 @@
     .header-controls { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
 
     .btn {
-      display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.5rem 0.85rem;
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.35rem; padding: 0.5rem 0.85rem;
       border-radius: 8px; font-size: 0.8rem; font-weight: 700; cursor: pointer;
       border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-main);
       text-decoration: none; transition: all 0.2s; white-space: nowrap;
@@ -149,9 +149,18 @@
 
     .modal { display: none; position: fixed; inset: 0; z-index: 100; background: var(--modal-bg); backdrop-filter: blur(12px); align-items: center; justify-content: center; padding: 1rem; }
     .modal.active { display: flex; }
-    .modal-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; width: 100%; max-width: 480px; padding: 1.25rem; max-height: 90vh; overflow-y: auto; color: var(--text-main); }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    .modal-card {
+      background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px;
+      width: 100%; max-width: 480px; padding: 1.25rem; max-height: calc(100dvh - 2rem);
+      display: flex; flex-direction: column; overflow: hidden; color: var(--text-main);
+    }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-shrink: 0; }
     .modal-close { background: none; border: none; color: var(--text-main); font-size: 1.4rem; cursor: pointer; }
+
+    /* 內容獨立捲動，操作按鈕永遠留在視窗底部。 */
+    .modal-form { display: flex; flex: 1; flex-direction: column; min-height: 0; }
+    .modal-scroll { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding-right: 0.25rem; }
+    .modal-footer { flex-shrink: 0; padding-top: 0.75rem; border-top: 1px solid var(--border-color); background: var(--bg-card); }
 
     .form-group { margin-bottom: 0.8rem; }
     .form-label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-sub); margin-bottom: 0.3rem; }
@@ -160,15 +169,16 @@
     .preview-box { width: 100%; height: 150px; border: 2px dashed var(--border-color); border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 0.8rem; overflow: hidden; background: #000; }
     .preview-box img { width: 100%; height: 100%; object-fit: contain; }
 
+    /* Lightbox：文字區獨立捲動，操作按鈕固定在視窗底部。 */
     .lightbox-box { 
       background: var(--bg-card); 
       border-radius: 16px; 
       overflow: hidden; 
-      max-width: 900px; 
+      max-width: 850px; 
       width: 100%; 
+      max-height: calc(100dvh - 2rem);
       display: flex; 
       border: 1px solid var(--border-color); 
-      max-height: 85vh; 
       color: var(--text-main); 
     }
 
@@ -178,28 +188,46 @@
       display: flex; 
       align-items: center; 
       justify-content: center; 
-      max-height: 85vh; 
+      min-height: 350px;
     }
-    .lightbox-img-container img { width: 100%; height: 100%; max-height: 85vh; object-fit: contain; }
+    .lightbox-img-container img { width: 100%; height: 100%; max-height: calc(100dvh - 2rem); object-fit: contain; }
 
     .lightbox-details { 
       flex: 1; 
       padding: 1.25rem; 
       display: flex; 
       flex-direction: column; 
-      justify-content: space-between; 
+      min-width: 0;
+      min-height: 0;
+      overflow: hidden;
       border-left: 1px solid var(--border-color); 
-      max-height: 85vh; 
-      overflow-y: auto; 
+    }
+    .lightbox-content { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding-right: 0.25rem; }
+    .lightbox-actions { flex-shrink: 0; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--border-color); background: var(--bg-card); }
+
+    /* 按鈕左右對稱雙排設計 */
+    .download-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
     }
 
-    .lightbox-details::-webkit-scrollbar { width: 6px; }
-    .lightbox-details::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+    /* 愛心彈跳特效 */
+    @keyframes heartBeat {
+      0% { transform: scale(1); }
+      25% { transform: scale(1.3); }
+      50% { transform: scale(0.9); }
+      75% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+    .heart-animated { animation: heartBeat 0.45s ease-in-out; }
 
     @media (max-width: 640px) { 
-      .lightbox-box { flex-direction: column; max-height: 90vh; overflow-y: auto; } 
-      .lightbox-img-container { max-height: 50vh; }
-      .lightbox-details { max-height: none; overflow-y: visible; border-left: none; border-top: 1px solid var(--border-color); }
+      .lightbox-box { flex-direction: column; height: calc(100dvh - 2rem); }
+      .lightbox-img-container { flex: 0 1 45%; min-height: 0; max-height: 45vh; }
+      .lightbox-img-container img { max-height: 45vh; }
+      .lightbox-details { border-left: none; border-top: 1px solid var(--border-color); }
     }
 
     .mobile-bottom-bar {
@@ -215,8 +243,6 @@
     }
 
     .tag-item { display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--border-color); }
-    .heart-btn { background: none; border: none; cursor: pointer; font-size: 1.1rem; transition: transform 0.1s; }
-    .heart-btn:active { transform: scale(1.3); }
   </style>
 </head>
 <body>
@@ -282,34 +308,35 @@
         <h3 id="modalFormTitle">新增照片貼文</h3>
         <button class="modal-close" id="closeUploadModal">&times;</button>
       </div>
-      <form id="uploadForm">
+      <form id="uploadForm" class="modal-form">
         <input type="hidden" id="editItemId" />
 
-        <div class="preview-box">
-          <div id="previewHint" style="color: var(--text-sub); font-size: 0.8rem; text-align: center;">
-            💡 提示：按 <b>Cmd + V</b> 或 <b>Ctrl + V</b> 可直接貼上圖片
+        <div class="modal-scroll">
+          <div class="preview-box">
+            <div id="previewHint" style="color: var(--text-sub); font-size: 0.8rem; text-align: center;">
+              💡 提示：按 <b>Cmd + V</b> 或 <b>Ctrl + V</b> 可直接貼上圖片
+            </div>
+            <img id="previewImg" style="display: none;" />
           </div>
-          <img id="previewImg" style="display: none;" />
-        </div>
+
+          <div class="form-group">
+            <label class="form-label">選擇標籤分類</label>
+            <select id="inputSource" class="form-control"></select>
+          </div>
 
         <div class="form-group">
-          <label class="form-label">選擇標籤分類</label>
-          <select id="inputSource" class="form-control"></select>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">方式 A：IG 圖片網址 (預覽顯示用)</label>
+          <label class="form-label">方式 A：IG / 網路圖片網址 (快速預覽)</label>
           <input type="text" id="inputDisplayUrl" class="form-control" placeholder="https://..." />
         </div>
 
         <div class="form-group">
-          <label class="form-label">方式 B：本機高畫質檔案 (專供下載用)</label>
+          <label class="form-label">方式 B：本機高畫質檔案 (供原圖下載)</label>
           <input type="file" id="inputFile" accept="image/*" class="form-control" />
         </div>
 
         <div class="form-group">
           <label class="form-label">相片標題 (選填)</label>
-          <input type="text" id="inputTitle" class="form-control" placeholder="可不填，預設抓內文前幾個字" />
+          <input type="text" id="inputTitle" class="form-control" placeholder="可不填，預設抓內文" />
         </div>
 
         <div class="form-group">
@@ -317,37 +344,45 @@
           <textarea id="inputQuote" class="form-control" rows="3" placeholder="輸入貼文內容..."></textarea>
         </div>
 
-        <div class="form-group">
-          <label class="form-label">IG 原始貼文網址 (選填)</label>
-          <input type="text" id="inputPostUrl" class="form-control" placeholder="https://www.instagram.com/p/..." />
+          <div class="form-group">
+            <label class="form-label">IG 原始貼文網址 (選填)</label>
+            <input type="text" id="inputPostUrl" class="form-control" placeholder="https://www.instagram.com/p/..." />
+          </div>
         </div>
 
-        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: 0.5rem;">儲存照片</button>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">儲存照片</button>
+        </div>
       </form>
     </div>
   </div>
 
-  <!-- Lightbox Modal -->
+  <!-- Lightbox Modal (雙下載按鈕 + 愛心) -->
   <div class="modal" id="lightboxModal">
     <div class="lightbox-box">
       <div class="lightbox-img-container">
         <img id="lbImg" src="" />
       </div>
       <div class="lightbox-details">
-        <div>
+        <div class="lightbox-content">
           <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem;">
             <span id="lbSource" style="font-weight: 700; font-size: 0.8rem; color: var(--accent);"></span>
             <button class="modal-close" id="closeLbBtn">&times;</button>
           </div>
           <h2 id="lbTitle" style="font-size: 1.1rem; font-weight: 800; margin-bottom: 0.5rem;"></h2>
           <p id="lbQuote" style="font-size: 0.85rem; color: var(--text-sub); line-height: 1.5; white-space: pre-wrap;"></p>
-          <div id="lbStats" style="margin-top: 0.75rem; font-size: 0.85rem; color: var(--text-sub); display: flex; gap: 1rem; align-items: center;"></div>
+          <div id="lbStats" style="margin-top: 0.8rem; font-size: 0.85rem; color: var(--text-sub); display: flex; gap: 1rem; align-items: center;"></div>
         </div>
 
-        <div style="margin-top: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
+        <div class="lightbox-actions" style="display: flex; flex-direction: column; gap: 0.5rem;">
           <button id="lbHeartBtn" class="btn" style="justify-content: center; background: rgba(239, 68, 68, 0.1); border-color: #ef4444; color: #ef4444;">❤️ 按讚愛心</button>
           <a id="lbPostLink" href="#" target="_blank" class="btn" style="justify-content: center;">🔗 開啟 IG 原始貼文</a>
-          <button id="lbDownloadBtn" class="btn btn-primary" style="justify-content: center;">📥 下載原圖</button>
+          
+          <!-- 左右兩個下載按鈕 -->
+          <div class="download-grid">
+            <button id="lbDlPreviewBtn" class="btn">⚡️ 預覽圖</button>
+            <button id="lbDlOriginalBtn" class="btn btn-primary">💎 高畫質原圖</button>
+          </div>
         </div>
       </div>
     </div>
@@ -358,6 +393,9 @@
     let currentTheme = localStorage.getItem('ashin_gallery_theme') || 'dark';
     let tags = JSON.parse(localStorage.getItem('ashin_gallery_tags')) || ['五月天阿信 IG'];
     let items = JSON.parse(localStorage.getItem('ashin_gallery_items')) || [];
+
+    // 本地紀錄每個人已點讚過的照片 ID 陣列
+    let userLikedItems = JSON.parse(localStorage.getItem('ashin_user_likes')) || [];
 
     let activeSource = 'all';
     let searchQuery = '';
@@ -435,7 +473,6 @@
       document.getElementById('inputSource').innerHTML = tags.map(t => `<option value="${t}">${t}</option>`).join('');
     }
 
-    // 全自動同步至 Firebase
     async function syncToFirebase() {
       try {
         localStorage.setItem('ashin_gallery_items', JSON.stringify(items));
@@ -449,18 +486,33 @@
           }
           await window.cloudDB.set(window.cloudDB.ref(window.cloudDB.db, 'mayday_tags'), tags);
         } catch (e) {
-          console.error("Firebase 自動同步失敗", e);
+          console.error("Firebase 同步失敗", e);
         }
       }
     }
 
-    // ⭐️ 點讚愛心功能（即時寫入 Firebase）
+    // ⭐️ 限制一人只能按一次愛心 + 彈跳動畫
     window.toggleHeart = async function(id, event) {
       if (event) event.stopPropagation();
+
+      if (userLikedItems.includes(id)) {
+        alert('❤️ 你已經點過這張照片的愛心囉！');
+        return;
+      }
+
       const item = items.find(i => i.id === id);
       if (!item) return;
 
       item.likes = (item.likes || 0) + 1;
+      userLikedItems.push(id);
+      try { localStorage.setItem('ashin_user_likes', JSON.stringify(userLikedItems)); } catch(e){}
+
+      // 動畫效果
+      const heartBtn = document.getElementById('lbHeartBtn');
+      if (heartBtn) {
+        heartBtn.classList.add('heart-animated');
+        setTimeout(() => heartBtn.classList.remove('heart-animated'), 500);
+      }
 
       if (window.cloudDB && window.cloudDB.db) {
         try {
@@ -581,8 +633,8 @@
       }
     });
 
-    // ⭐️ 下載次數即時寫入 Firebase
-    window.triggerDownload = async function(id) {
+    // ⭐️ 下載功能 (區分預覽圖 / 高畫質原圖)
+    window.triggerDownload = async function(id, type = 'original') {
       const item = items.find(i => i.id === id);
       if (!item) return;
 
@@ -599,8 +651,12 @@
         updateLightboxStats(item);
       }
 
-      const downloadTarget = item.uploadUrl || item.displayUrl;
-      const fileName = (item.title || 'ashin_photo') + '.jpg';
+      let downloadTarget = item.displayUrl;
+      if (type === 'original' && item.uploadUrl) {
+        downloadTarget = item.uploadUrl;
+      }
+
+      const fileName = (item.title || 'ashin_photo') + (type === 'preview' ? '_thumb' : '') + '.jpg';
 
       const a = document.createElement('a');
       a.href = downloadTarget;
@@ -613,9 +669,18 @@
 
     function updateLightboxStats(item) {
       document.getElementById('lbStats').innerHTML = `
-        <span>❤️ <b>${item.likes || 0}</b> 人喜歡</span>
-        <span>📥 累積下載 <b>${item.downloads || 0}</b> 次</span>
+        <span>❤️ <b>${item.likes || 0}</b> 人讚過</span>
+        <span>📥 下載 <b>${item.downloads || 0}</b> 次</span>
       `;
+
+      const heartBtn = document.getElementById('lbHeartBtn');
+      if (userLikedItems.includes(item.id)) {
+        heartBtn.style.opacity = '0.6';
+        heartBtn.textContent = '💖 已點讚';
+      } else {
+        heartBtn.style.opacity = '1';
+        heartBtn.textContent = '❤️ 按讚愛心';
+      }
     }
 
     window.openLightbox = function(id) {
@@ -640,7 +705,11 @@
       }
 
       document.getElementById('lbHeartBtn').onclick = () => window.toggleHeart(item.id);
-      document.getElementById('lbDownloadBtn').onclick = () => window.triggerDownload(item.id);
+      
+      // 綁定左右雙下載按鈕
+      document.getElementById('lbDlPreviewBtn').onclick = () => window.triggerDownload(item.id, 'preview');
+      document.getElementById('lbDlOriginalBtn').onclick = () => window.triggerDownload(item.id, 'original');
+
       lightboxModal.classList.add('active');
     };
 
@@ -714,6 +783,19 @@
       currentLbItemId = null;
     };
 
+    window.addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape') return;
+
+      if (lightboxModal.classList.contains('active')) {
+        lightboxModal.classList.remove('active');
+        currentLbItemId = null;
+      } else if (uploadModal.classList.contains('active')) {
+        uploadModal.classList.remove('active');
+      } else if (tagModal.classList.contains('active')) {
+        tagModal.classList.remove('active');
+      }
+    });
+
     function cleanUrl(url) {
       if (!url) return '';
       url = url.trim();
@@ -728,8 +810,22 @@
       const id = document.getElementById('editItemId').value || ('item-' + Date.now());
       const fileInput = document.getElementById('inputFile');
 
+      // 原圖無損保留 vs 預覽圖輕量化
       if (fileInput.files[0]) {
-        currentUploadedBase64 = await compressImage(fileInput.files[0]);
+        const rawFile = fileInput.files[0];
+        
+        // 1. 產生高畫質原圖 Base64
+        currentUploadedBase64 = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = (ev) => resolve(ev.target.result);
+          reader.readAsDataURL(rawFile);
+        });
+
+        // 2. 如果沒有填寫網路 URL，就自動產生輕量預覽圖
+        if (!document.getElementById('inputDisplayUrl').value) {
+          const compUrl = await compressImage(rawFile, 900, 0.75);
+          document.getElementById('inputDisplayUrl').value = compUrl;
+        }
       }
 
       let displayUrl = cleanUrl(document.getElementById('inputDisplayUrl').value);
@@ -786,7 +882,6 @@
       renderGrid();
     };
 
-    // 手動同步按鈕邏輯
     async function handleManualSync() {
       const syncBtn = document.getElementById('manualSyncBtn');
       const mbSyncBtn = document.getElementById('mbSyncBtn');
@@ -810,7 +905,6 @@
     document.getElementById('manualSyncBtn').onclick = handleManualSync;
     document.getElementById('mbSyncBtn').onclick = handleManualSync;
 
-    // 自動監聽雲端資料變更
     window.addEventListener('DOMContentLoaded', () => {
       applyTheme(currentTheme);
       renderTabs();

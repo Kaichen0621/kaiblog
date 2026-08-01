@@ -77,3 +77,4 @@ BlogBlog.Club 是 `WIWI` 的最新專案，他希望大家一起來寫部落格�
 #### <a href="/mayday-sim">🎫 搶票專區</a>
 #### <a href="/random-spin.html">💞 隨機轉盤</a>
 #### <a href="/Train_EMU.html">🚝 TRAIN_EMU</a>
+#### <a href="[/mayday-sim](https://kaichen0621.github.io/ashin/)">五月天阿信相片館</a>
