@@ -4,6 +4,8 @@ slug: /update
 ---
 
 # ⬆︎ 更新紀錄 `/update`
+## #13 2026-08-02
+新增 ashin.HTML 相片館網頁
 ## #12 2026-07-30
 更換網頁顯示字體：Chiron GoRound TC
 ## #11 2026-07-14
