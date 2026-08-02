@@ -9,7 +9,7 @@ tags: []
 
 # 📱 KAI macOS 電腦裡有什麼 `/app`
 
-- 最後更新：2026-07-26 16:50
+- 最後更新：2026-08-02 10:00
 - **總共 `46` 個 軟體**
 
 ## 這是我在 Mac 上的軟體清單
@@ -58,6 +58,7 @@ tags: []
 42. Raycast Beta : 至少比 Spolight 好用，Beta 版功能強大 / 搜尋檔案好用
 43. Roblox : 我唯一玩的遊戲
 44. Steinberg Library Manager : 管理 VST 音色庫路徑與授權的工具
-45. Vibe : 語音轉文字用 Whisper 開源挺方便的
-46. Vovious : 調音準很方便，媲美 Melodyne
-47. VSCodium : 還是開源的文字編輯器好用
+45. Upscayl : 放大圖片的好工具
+46. Vibe : 語音轉文字用 Whisper 開源挺方便的
+47. Vovious : 調音準很方便，媲美 Melodyne
+48. VSCodium : 還是開源的文字編輯器好用
